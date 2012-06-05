@@ -9,7 +9,7 @@ c=[];
 %  details_l1(dataset_no,:)=[k,rows,data_len,SSEP,SSEC,RI,purity,BCubed,ConEntropy,f_measure,jacard,FM,quality];
 % Plot_time_series(0,0,c,p,[],nor_traj,t_traj,k,2,2);
 %  Plot_time_series_luminate(0,0,p,p,[],nor_traj,t_traj,k1,2,0.8,2);
-% Plot_time_series_luminate(0,0,c,p,[],nor_traj,t_traj,k1,2,0.5,1);
+% Plot_time_series_luminate(0,0,c,p,[],nor_traj,[],k,2,0.5,1);
 
 %% ----------Level 2--CAST(raw)--------------------------------------------
 disp('level 2');
@@ -20,7 +20,7 @@ for i=1:clusterCount
     if length(newData)<5
         c(newData,2)=0;
     else
-           temp_c= do_CAST_time (nor_traj(newData),'DTW',-1,'SAX','alphabet_size',8,'compression_ratio',2,'dtw_bound',0.8);
+           temp_c= do_CAST_time (nor_traj(newData),'DTW',-1,'SAX','alphabet_size',8,'compression_ratio',4,'dtw_bound',0.8);
       %  temp_c= do_CAST_time (nor_traj(newData),'DTW',-1,'RAW','dtw_bound',.9);
         c(newData,2)=temp_c;
     end
@@ -46,7 +46,7 @@ l2_clusterCount=max(c(:,4));
 %     purity2=Calculate_Cluster_Purity(c(:,4),p,1);
 %     level2_details(dataset_no,:)=[details_l1(dataset_no,7),qual_2lev,l2_clusterCount,purity2,N_reduction_2lev];
 %    Plot_time_series(0,0,c(:,4),p,[],nor_traj,t_traj,l2_clusterCount,2,2);
-% Plot_time_series_luminate(0,0,c(:,4),p,[],nor_traj,t_traj,l2_clusterCount,2,0.5,2);
+% Plot_time_series_luminate(0,0,c(:,4),p,[],nor_traj,[],l2_clusterCount,2,0.5,2);
 %  [SSEP,SSEC,RS,purity,BCubed,ConEntropy,fm]= do_Evaluate(p,cc,nor_traj,class_center,center);
 
 %% --Level 3-------------------------------------------------
@@ -56,14 +56,13 @@ center=[];
 for i=1:l2_clusterCount;
     i
     %   center{i}=centre_mean(c(:,4),i,nor_traj);
-    center{i}=centre_mediod(c(:,4),i,nor_traj,'RAW','DTW','dtw_bound',1);
+  %  center{i}=centre_mediod(c(:,4),i,nor_traj,'RAW','DTW','dtw_bound',1);
     
-    %      center{i}=centre_mediod(c(:,4),i,nor_traj,'SAX','DTW','alphabet_size',8,'compression_ratio',2,'dtw_bound',1);
-    %        t=find(c(:,4)==i);
-    %        center{i}=nor_traj{t(1,1)};
+          center{i}=centre_mediod(c(:,4),i,nor_traj,'SAX','DTW','alphabet_size',8,'compression_ratio',4,'dtw_bound',1);
+          weight(i,1)=length(find(c(:,4)==i))
+
 end
-%  Plot_time_series_luminate(0,0,c(:,4),p,center,nor_traj,t_traj,l2_cluster
-%  Count,2,0.2,2);
+ % Plot_time_series_luminate(0,0,c(:,4),p,center,nor_traj,[],l2_clusterCount,2,0.2,2);
 %-----------
 if l2_clusterCount>k
     %  k=5
@@ -71,7 +70,7 @@ if l2_clusterCount>k
     %   [c3,Z]=do_Hierarchical_time(center,k,'DTW','complete',-1,'dtw_bound',1);
     %   [c3,Z]=do_Hierarchical_time(center,k,'DTW','single',-1,'dtw_bound',0.9);
     %   [c3,itr]= do_kMeans_time (center,k,'DTW',0,'RAW','dtw_bound',1);
-        [c3,~]= do_kMediod_time (center,k,'DTW',0,'SAX','alphabet_size',8,'compression_ratio',4,'dtw_bound',1);
+        [c3,~]= do_kMediod_time (center,k,'DTW',0,'SAX','alphabet_size',8,'compression_ratio',4,'dtw_bound',1,'weight',weight);
    %  [c3,~]= do_kMediod_time (center,k,'DTW',0,'RAW','dtw_bound',1);
     for j=1:k
         l3_mems=find(c3==j);
@@ -94,9 +93,9 @@ for j=1:length(center)
     xx=p(sub_members);
     pp(j,1)=mode(xx); %  to find more frequent in this cluster
 end
-% Plot_time_series_luminate(0,0,c3,pp,[],center,t_traj,k,2,0.5,3);
+ %Plot_time_series_luminate(0,0,c3,pp,[],center,[],k,2,0.5,3);
 %--------------------
-%  Plot_time_series_luminate(0,0,c(:,5),p,[],nor_traj,t_traj,k,2,0.5,4);
+ % Plot_time_series_luminate(0,0,c(:,5),p,[],nor_traj,[],k,2,0.5,4);
 clus_center={};
 for i=1:k
     clus_center{i}=centre_mean(c(:,5),i,nor_traj);

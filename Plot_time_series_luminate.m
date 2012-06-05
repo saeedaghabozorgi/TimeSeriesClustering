@@ -20,6 +20,11 @@ else
     rrr=clusterCount;
 end
 
+if isempty(t_traj)
+    for i=1:length(nor_traj)
+    t_traj{i}=[1:1:length(nor_traj{1})];
+    end
+end
 
 clus=cell(1,clusterCount);
 figure(fig_no);

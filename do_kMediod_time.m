@@ -1,18 +1,18 @@
 function [c,itr]= do_kMediod_time (nor_traj_raw,k,dis_method,isRand,rep,varargin)
 
-options = struct('alphabet_size',0,'compression_ratio',0);
+options = struct('alphabet_size',0,'compression_ratio',0,'weight',[]);
 optionNames = fieldnames(options);
 nArgs = length(varargin);
 if round(nArgs/2)~=nArgs/2
-   error('EXAMPLE needs propertyName/propertyValue pairs')
+    error('EXAMPLE needs propertyName/propertyValue pairs')
 end
 
 for pair = reshape(varargin,2,[]) %# pair is {propName;propValue}
-   inpName = lower(pair{1}); %# make case insensitive
-   if any(strmatch(inpName,optionNames))
-      options.(inpName) = pair{2};
-%    else
-%       error('%s is not a recognized parameter name',inpName)
+    inpName = lower(pair{1}); %# make case insensitive
+    if any(strmatch(inpName,optionNames))
+        options.(inpName) = pair{2};
+        %    else
+        %       error('%s is not a recognized parameter name',inpName)
     end
 end
 
@@ -35,13 +35,14 @@ end
 % initial value of centroid
 if isRand,
     p = randperm(Rows);      % random initialization
-    for i=1:k
-        center{i}=nor_traj{p(i)};
-    end
+    center=nor_traj{p(1:k)};
 else
-    for i=1:k
-        center{i}=nor_traj{i};      % sequential initialization
-    end
+        center=nor_traj{[1:1:k]};      % sequential initialization
+end
+
+if ~isempty(options.weight)
+    [~,inx]=sort(options.weight,'descend');
+    center=nor_traj(inx(1:k));
 end
 
 while 1,
@@ -58,7 +59,11 @@ while 1,
         %-----------------------------------------------------------------
         case 'SAX'
             for i=1:k
-                center{i}= medoid_SAX(c,i, nor_traj,dis_method,varargin{:});
+                if isempty(options.weight)
+                    center{i}= medoid_SAX(c,i, nor_traj,dis_method,varargin{:});
+                else
+                    center{i}= medoid_SAX_weight(c,i, nor_traj,dis_method,options.weight,varargin{:});
+                end
                 % center{i}=centroid_SAX(c,i,nor_traj,length(nor_traj{1}), alphabet_size,compression_ratio)
                 if  isempty(center{i})
                     center{i}=nor_traj{randperm(Rows)};
@@ -88,13 +93,38 @@ if isempty(t)
     mmean=[];
 else
     dis=Mtx_Distance(SAX_nor_traj(t),SAX_nor_traj(t),'same',dis_method,varargin{:});
-   % dis=dis^2;
+    % dis=dis^2;
     sum_dis=sum(dis);
     [s,m]=min(sum_dis);
     mmean=SAX_nor_traj{t(m)};
 end
 medoid=mmean;
 end
+
+
+function medoid=medoid_SAX_weight(c,clusterNum,SAX_nor_traj,dis_method,weight,varargin)
+t=find(c(:,1)==clusterNum);
+
+if isempty(t)
+    mmean=[];
+elseif length(t)==1
+    mmean=SAX_nor_traj{t(1)};
+else
+    weight=weight(t);
+    for i=1:length(t)
+        for j=1:length(t)
+            w(i,j)=weight(i)+weight(j)
+        end
+    end
+    dis=Mtx_Distance(SAX_nor_traj(t),SAX_nor_traj(t),'same',dis_method,varargin{:});
+    dis=dis+dis';
+    dis=dis./w;
+    [s,m]=min(sum(dis));
+    mmean=SAX_nor_traj{t(m)};
+end
+medoid=mmean;
+end
+
 
 
 function medoid=centre_mediod(c,clusterNum,nor_traj,dis_method,varargin)
