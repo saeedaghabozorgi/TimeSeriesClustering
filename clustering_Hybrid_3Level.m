@@ -16,16 +16,12 @@ disp('level 2');
 clusterCount=max(c);
 for i=1:clusterCount
     i
-    newData=[];
     newData=find(c(:,1)==i);
     if length(newData)<5
         c(newData,2)=0;
     else
-        temp_c=[];
-        %   temp_c= do_CAST_time (nor_traj(newData),'DTW',-1,'SAX','alphabet_size',8,'compression_ratio',2,'dtw_bound',0.8);
-        temp_c= do_CAST_time (nor_traj(newData),'DTW',-1,'RAW','dtw_bound',.9);
-        
-        clustCoun=max(temp_c);
+           temp_c= do_CAST_time (nor_traj(newData),'DTW',-1,'SAX','alphabet_size',8,'compression_ratio',2,'dtw_bound',0.8);
+      %  temp_c= do_CAST_time (nor_traj(newData),'DTW',-1,'RAW','dtw_bound',.9);
         c(newData,2)=temp_c;
     end
 end
@@ -59,7 +55,6 @@ disp('level 3');
 center=[];
 for i=1:l2_clusterCount;
     i
-    
     %   center{i}=centre_mean(c(:,4),i,nor_traj);
     center{i}=centre_mediod(c(:,4),i,nor_traj,'RAW','DTW','dtw_bound',1);
     
@@ -76,8 +71,8 @@ if l2_clusterCount>k
     %   [c3,Z]=do_Hierarchical_time(center,k,'DTW','complete',-1,'dtw_bound',1);
     %   [c3,Z]=do_Hierarchical_time(center,k,'DTW','single',-1,'dtw_bound',0.9);
     %   [c3,itr]= do_kMeans_time (center,k,'DTW',0,'RAW','dtw_bound',1);
-    %     [c3,~]= do_kMediod_time (center,k,'DTW',0,'SAX','alphabet_size',8,'compression_ratio',4,'dtw_bound',1);
-    [c3,~]= do_kMediod_time (center,k,'DTW',0,'RAW','dtw_bound',1);
+        [c3,~]= do_kMediod_time (center,k,'DTW',0,'SAX','alphabet_size',8,'compression_ratio',4,'dtw_bound',1);
+   %  [c3,~]= do_kMediod_time (center,k,'DTW',0,'RAW','dtw_bound',1);
     for j=1:k
         l3_mems=find(c3==j);
         for i=1:length(l3_mems)

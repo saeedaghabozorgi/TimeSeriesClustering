@@ -7,7 +7,7 @@ for k=3:length(fnames)
     files_name{k-2}=fname;
 end
 result=[];
-for dataset_no=3:3 %length(files_name)
+for dataset_no=1:1 %length(files_name)
     file_name=['..\data\dataset UCR\All train\' files_name{dataset_no}];
     disp(file_name);
     train_data = importdata(file_name);
