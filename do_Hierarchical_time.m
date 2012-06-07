@@ -1,6 +1,6 @@
-function [c,Zh]=do_Hierarchical_time(nor_traj,k,dis_method,linkage_Method,Cutoff,varargin)
+function [c,Zh]=do_Hierarchical_time(nor_traj_raw,k,dis_method,linkage_Method,Cutoff,varargin)
 
-options = struct('alphabet_size',0,'compression_ratio',0);
+options = struct('alphabet_size',0,'compression_ratio',0,'rep','RAW');
 optionNames = fieldnames(options);
 nArgs = length(varargin);
 if round(nArgs/2)~=nArgs/2
@@ -16,6 +16,9 @@ for pair = reshape(varargin,2,[]) %# pair is {propName;propValue}
     end
 end
 
+
+% representation
+nor_traj=represent_TS(nor_traj_raw,options.rep,varargin{:});
 
 if nargin<1,     end
 if nargin<2,    k=1;        end

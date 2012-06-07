@@ -6,7 +6,7 @@ for k=3:length(fnames)
     fname = fnames(k).name;
     files_name{k-2}=fname;
 end
-for dataset_no=1:length(files_name)
+for dataset_no=1:3%length(files_name)
     file_name=['..\data\dataset UCR\All train\' files_name{dataset_no}];
 
     train_data = importdata(file_name);
@@ -38,7 +38,7 @@ end
 
 
 fileID = fopen('result.txt','w');
-for dataset_no=1:length(files_name)
+for dataset_no=3:length(files_name)
 %      disp(files_name.);
     files_name(dataset_no)
     details(dataset_no,:)=clustering_Hybrid_3Level(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no});

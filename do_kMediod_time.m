@@ -37,7 +37,7 @@ if isRand,
     p = randperm(Rows);      % random initialization
     center=nor_traj{p(1:k)};
 else
-        center=nor_traj{[1:1:k]};      % sequential initialization
+        center=nor_traj{1:k};      % sequential initialization
 end
 
 if ~isempty(options.weight)

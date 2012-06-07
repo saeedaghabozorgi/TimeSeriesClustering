@@ -12,9 +12,9 @@ for pair = reshape(varargin,2,[]) %# pair is {propName;propValue}
     inpName = lower(pair{1}); %# make case insensitive
     if any(strmatch(inpName,optionNames))
         options.(inpName) = pair{2};
-    else
+%    else
 %         error('%s is not a recognized parameter name',inpName)
-%     end
+     end
 end
 
 
@@ -31,8 +31,8 @@ if strcmp(cond,'same')
                     case 'Euclid'
                         dis=dis_euclidean(a,b);
                     case 'DTW'
-                      %  dis=dis_dtw3(a,b,round(length(a)*options.dtw_bound));
-                        [dis,~,~,~]=dis_dtw_complete(a,b);
+                        dis=dis_dtw3(a,b,fix(length(a)*options.dtw_bound));
+                      %  [dis,~,~,~]=dis_dtw_complete(a,b);
                         
                     case 'LCSS'
                         dis=dis_lcs(a, b, 3, .3);
@@ -63,7 +63,7 @@ else
                 case 'Euclid'
                     dis=dis_euclidean(a,b);
                 case 'DTW'
-                    dis=dis_dtw3(a,b,length(a)*options.dtw_bound);
+                    dis=dis_dtw3(a,b,fix(length(a)*options.dtw_bound));
                   %  [dis,~,~,~]=dis_dtw_complete(a,b);
                 case 'LCSS'
                     dis=dis_lcs(a, b, 3, .3);
