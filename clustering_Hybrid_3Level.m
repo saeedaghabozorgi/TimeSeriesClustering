@@ -55,8 +55,7 @@ for i=1:l2_clusterCount;
     weight(i,1)=length(find(c(:,4)==i));
     %      center{i}=centre_mediod(c(:,4),i,nor_traj,'SAX','DTW','alphabet_size',8,'compression_ratio',2,'dtw_bound',1);
 end
-%  Plot_time_series_luminate(0,0,c(:,4),p,center,nor_traj,t_traj,l2_cluster
-%  Count,2,0.2,2);
+  Plot_time_series_luminate(0,0,c(:,4),p,center,nor_traj,[],l2_clusterCount,2,0.2,2);
 %-----------
 if l2_clusterCount>k
     %  k=5
@@ -88,9 +87,9 @@ for j=1:length(center)
     xx=p(sub_members);
     pp(j,1)=mode(xx); %  to find more frequent in this cluster
 end
-% Plot_time_series_luminate(0,0,c3,pp,[],center,t_traj,k,2,0.5,3);
+ Plot_time_series_luminate(0,0,c3,pp,[],center,[],k,2,0.5,3);
 %--------------------
-%  Plot_time_series_luminate(0,0,c(:,5),p,[],nor_traj,t_traj,k,2,0.5,4);
+  Plot_time_series_luminate(0,0,c(:,5),p,[],nor_traj,[],k,2,0.5,4);
 clus_center={};
 for i=1:k
     clus_center{i}=centre_mean(c(:,5),i,nor_traj);

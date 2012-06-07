@@ -107,7 +107,7 @@ t=find(c(:,1)==clusterNum);
 
 if isempty(t)
     mmean=[];
-elseif length(t)==1
+elseif length(t)<3
     mmean=SAX_nor_traj{t(1)};
 else
     weight=weight(t);
