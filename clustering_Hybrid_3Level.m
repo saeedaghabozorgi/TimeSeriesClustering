@@ -15,7 +15,7 @@ c=[];
 disp('level 2');
 clusterCount=max(c);
 for i=1:clusterCount
-    i
+%     i
     newData=find(c(:,1)==i);
     if length(newData)<5
         c(newData,2)=0;
@@ -54,12 +54,12 @@ l2_clusterCount=max(c(:,4));
 disp('level 3');
 center=[];
 for i=1:l2_clusterCount;
-    i
+%     i
     %   center{i}=centre_mean(c(:,4),i,nor_traj);
   %  center{i}=centre_mediod(c(:,4),i,nor_traj,'RAW','DTW','dtw_bound',1);
     
           center{i}=centre_mediod(c(:,4),i,nor_traj,'SAX','DTW','alphabet_size',8,'compression_ratio',4,'dtw_bound',1);
-          weight(i,1)=length(find(c(:,4)==i))
+          weight(i,1)=length(find(c(:,4)==i));
 
 end
  % Plot_time_series_luminate(0,0,c(:,4),p,center,nor_traj,[],l2_clusterCount,2,0.2,2);
@@ -89,6 +89,7 @@ end
 %--------------------
 %-- to show the centers
 for j=1:length(center)
+    i;
     sub_members=find(c(:,4)==j);
     xx=p(sub_members);
     pp(j,1)=mode(xx); %  to find more frequent in this cluster

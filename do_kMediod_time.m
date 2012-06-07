@@ -46,7 +46,7 @@ if ~isempty(options.weight)
 end
 
 while 1,
-    itr=itr+1
+    itr=itr+1;
     dis=Mtx_Distance(nor_traj,center,'cell_not_same',dis_method,varargin{:});
     [z,c]=min(dis,[],2);  % find group matrix g
     if (c==temp | itr==20),
@@ -113,7 +113,7 @@ else
     weight=weight(t);
     for i=1:length(t)
         for j=1:length(t)
-            w(i,j)=weight(i)+weight(j)
+            w(i,j)=weight(i)+weight(j);
         end
     end
     dis=Mtx_Distance(SAX_nor_traj(t),SAX_nor_traj(t),'same',dis_method,varargin{:});
