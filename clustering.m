@@ -6,9 +6,10 @@ for k=3:length(fnames)
     fname = fnames(k).name;
     files_name{k-2}=fname;
 end
+disp('Reading data ..');
 for dataset_no=1:length(files_name)
     file_name=['..\data\dataset UCR\All train\' files_name{dataset_no}];
-
+    
     train_data = importdata(file_name);
     TRAIN_class_labels = train_data(:,1);     % Pull out the class labels.
     
@@ -27,7 +28,7 @@ for dataset_no=1:length(files_name)
     cluster_count(dataset_no)=k;
     pp{dataset_no}=p;
     ds{dataset_no}=nor_traj;
-  %   details(dataset_no,:)=clustering_Hybrid_3Level(nor_traj,k,p);
+    %   details(dataset_no,:)=clustering_Hybrid_3Level(nor_traj,k,p);
 end
 %  matlabpool open 8
 % parfor dataset_no=1:length(files_name)
@@ -37,15 +38,14 @@ end
 % matlabpool close
 
 
-fileID = fopen('result.txt','w');
-for dataset_no=4:length(files_name)
-%      disp(files_name.);
+fileID = fopen('result.txt','a');
+for dataset_no=14:length(files_name)
     files_name(dataset_no)
     details(dataset_no,:)=clustering_Hybrid_3Level(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no});
-    fprintf(fileID,'%6.2f %12.8f\n',details(dataset_no,:));
-    fprintf(fileID,'\r\n');
+    fprintf(fileID,'dataset_no: %d \n',dataset_no);
+    dlmwrite('result.txt',details(dataset_no,:) ,'-append','delimiter', '\t','newline','pc');
 end
 fclose(fileID);
-
-
+fprintf(fileID,'---------------------------------------------------------------------------------------------------------\n');
+fprintf(fileID,'\n');
 a=1;
