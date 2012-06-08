@@ -17,8 +17,8 @@ for i=1:clusterCount
     if length(newData)<5
         c(newData,2)=0;
     else
-           temp_c= do_CAST_time (nor_traj(newData),'DTW',-1,'SAX','alphabet_size',8,'compression_ratio',4,'dtw_bound',0.4);
-      %  temp_c= do_CAST_time (nor_traj(newData),'DTW',-1,'RAW','dtw_bound',.9);
+        %   temp_c= do_CAST_time (nor_traj(newData),'DTW',-1,'SAX','alphabet_size',8,'compression_ratio',2,'dtw_bound',0.5);
+        temp_c= do_CAST_time (nor_traj(newData),'DTW',-1,'RAW','dtw_bound',.9);
         c(newData,2)=temp_c;
     end
 end
@@ -51,8 +51,8 @@ l2_clusterCount=max(c(:,4));
 disp('level 3');
 center=[];
 for i=1:l2_clusterCount;
- %   center{i}=centre_mediod(c(:,4),i,nor_traj,'RAW','DTW','dtw_bound',1);
-           center{i}=centre_mediod(c(:,4),i,nor_traj,'SAX','DTW','alphabet_size',8,'compression_ratio',4,'dtw_bound',0.5);
+    center{i}=centre_mediod(c(:,4),i,nor_traj,'RAW','DTW','dtw_bound',0.9);
+  %         center{i}=centre_mediod(c(:,4),i,nor_traj,'SAX','DTW','alphabet_size',8,'compression_ratio',2,'dtw_bound',0.5);
     weight(i,1)=length(find(c(:,4)==i));
   
 end
@@ -60,13 +60,11 @@ end
 %-----------
 if l2_clusterCount>k
     %  k=5
-     %  [c3,Z]=do_Hierarchical_time(center,k,'DTW','average',-1,'dtw_bound',0.1);
-     %  [c3,Z]=do_Hierarchical_time(center,k,'DTW','average',-1,'rep','SAX','alphabet_size',8,'compression_ratio',4,'dtw_bound',0.1);
-    %   [c3,Z]=do_Hierarchical_time(center,k,'DTW','complete',-1,'dtw_bound',1);
-    %   [c3,Z]=do_Hierarchical_time(center,k,'DTW','single',-1,'dtw_bound',0.9);
-    %   [c3,itr]= do_kMeans_time (center,k,'DTW',0,'RAW','dtw_bound',1);
-       [c3,~]= do_kMediod_time (center,k,'DTW',0,'SAX','alphabet_size',8,'compression_ratio',4,'dtw_bound',0.5,'weight',weight);
-   %  [c3,~]= do_kMediod_time (center,k,'DTW',0,'RAW','dtw_bound',1);
+   
+      % [c3,Z]=do_Hierarchical_time(center,k,'DTW','complete',-1,'rep','SAX','alphabet_size',8,'compression_ratio',4,'dtw_bound',0.8);
+       %   [c3,itr]= do_kMeans_time (center,k,'DTW',0,'RAW','dtw_bound',1);
+     %   [c3,~]= do_kMediod_time (center,k,'DTW',0,'SAX','alphabet_size',8,'compression_ratio',4,'dtw_bound',0.5,'weight',weight);
+    [c3,~]= do_kMediod_time (center,k,'DTW',0,'RAW','dtw_bound',0.9);
     for j=1:k
         l3_mems=find(c3==j);
         for i=1:length(l3_mems)

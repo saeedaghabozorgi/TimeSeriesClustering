@@ -30,12 +30,12 @@ for dataset_no=1:length(files_name)
     ds{dataset_no}=nor_traj;
     %   details(dataset_no,:)=clustering_Hybrid_3Level(nor_traj,k,p);
 end
-%  matlabpool open 8
-% parfor dataset_no=1:length(files_name)
-%      disp(file_name);
-%      details(dataset_no,:)=clustering_Hybrid_3Level(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no});
-% end
-% matlabpool close
+%   matlabpool open 8
+%  parfor dataset_no=14:length(files_name)
+%      files_name(dataset_no);
+%       details(dataset_no,:)=clustering_Hybrid_3Level(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no});
+%  end
+%  matlabpool close
 
 
 fileID = fopen('result.txt','a');
@@ -45,7 +45,7 @@ for dataset_no=14:length(files_name)
     fprintf(fileID,'dataset_no: %d \n',dataset_no);
     dlmwrite('result.txt',details(dataset_no,:) ,'-append','delimiter', '\t','newline','pc');
 end
-fclose(fileID);
 fprintf(fileID,'---------------------------------------------------------------------------------------------------------\n');
 fprintf(fileID,'\n');
+fclose(fileID);
 a=1;
