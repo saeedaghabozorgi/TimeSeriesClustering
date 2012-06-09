@@ -10,6 +10,5 @@ ConEntropy=1-entropy;
 f_measure=Calculate_Cluster_F_measure( c,p);
 jacard=Calculate_Cluster_Jaccard(c,p);
 FM=Calculate_Cluster_FM(c,p);
-quality=(purity+BCubed+ConEntropy+f_measure+RI)/5;
-
+quality=(RI+purity+BCubed+ConEntropy+f_measure+jacard+FM)/7;
 end

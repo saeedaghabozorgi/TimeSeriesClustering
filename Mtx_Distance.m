@@ -1,7 +1,7 @@
-function dismatrix=Mtx_Distance(x,y,cond,dis_method,varargin)
+function dismatrix=Mtx_Distance(x,y,cond,varargin)
 
 
-options = struct('dtw_bound',0,'alphabet_size',0,'compression_ratio',0);
+options = struct('dis_method','Euclid','dtw_bound',0,'alphabet_size',0,'compression_ratio',0);
 optionNames = fieldnames(options);
 nArgs = length(varargin);
 if round(nArgs/2)~=nArgs/2
@@ -27,7 +27,7 @@ if strcmp(cond,'same')
         for j = i:data_n,
             if i ~= j
                 b=x{j};
-                switch dis_method
+                switch options.dis_method
                     case 'Euclid'
                         dis=dis_euclidean(a,b);
                     case 'DTW'
@@ -46,6 +46,7 @@ if strcmp(cond,'same')
                         error(sprintf('DOCLUSTERING - unsupported algorithm "%s"',dis_method))
                 end %of switch/case
                 dismatrix(i, j) =dis;
+                dismatrix(j, i)=dis;
             end
         end
     end
@@ -59,7 +60,7 @@ else
                 display('error: the strings must have equal length!');
                 return;
             end
-            switch dis_method
+            switch options.dis_method
                 case 'Euclid'
                     dis=dis_euclidean(a,b);
                 case 'DTW'
@@ -77,12 +78,16 @@ else
                     error(sprintf('DOCLUSTERING - unsupported algorithm "%s"',dis_method))
             end %of switch/case
             dismatrix(i, j) =dis;
+            
             %t(j)=toc;
 
         end
     end
 end
 Nor = dismatrix - min( dismatrix(:) );
+if max( Nor(:) ) ~= 0
 dismatrix = Nor / max( Nor(:) );
-
+else
+    dismatrix=Nor;
+end
 end

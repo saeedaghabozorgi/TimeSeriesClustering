@@ -1,6 +1,6 @@
-function [c,itr]= do_kModes_time (nor_traj_raw,k,dis_method,isRand,rep,varargin)
+function [c,itr]= do_kModes_time (nor_traj_raw,k,isRand,varargin)
 
-options = struct('alphabet_size',0,'compression_ratio',0);
+options = struct('alphabet_size',0,'compression_ratio',0,'rep','RAW');
 optionNames = fieldnames(options);
 nArgs = length(varargin);
 if round(nArgs/2)~=nArgs/2
@@ -11,8 +11,8 @@ for pair = reshape(varargin,2,[]) %# pair is {propName;propValue}
    inpName = lower(pair{1}); %# make case insensitive
    if any(strmatch(inpName,optionNames))
       options.(inpName) = pair{2};
-   else
-      error('%s is not a recognized parameter name',inpName)
+%    else
+%       error('%s is not a recognized parameter name',inpName)
    end
 end
 
@@ -34,7 +34,7 @@ end
 nor_traj=[];
 
 % representation
-nor_traj=represent_TS(nor_traj_raw,rep,varargin{:});
+nor_traj=represent_TS(nor_traj_raw,options.rep,varargin{:});
 
 % initial value of centroid
 if isRand,
@@ -50,7 +50,7 @@ end
 
 while 1,
     itr=itr+1;
-    dis=Mtx_Distance(nor_traj,center,'cell_not_same',dis_method,varargin{:});
+    dis=Mtx_Distance(nor_traj,center,'cell_not_same',varargin{:});
     [z,c]=min(dis,[],2);  % find group matrix g
     if (c==temp | itr==10),
         break;          % stop the iteration
@@ -58,7 +58,7 @@ while 1,
         temp=c;         % copy group matrix to temporary variable
     end
     
-    switch rep
+    switch options.rep
         %-----------------------------------------------------------------
         case 'SAX'
             for i=1:k
@@ -126,7 +126,6 @@ else
     dis=Mtx_Distance(nor_traj(t),nor_traj(t),'same',dis_method);
     
     %find the SSE
-    dis=dis+dis';
     dis=dis^2;
     Error=sum(dis);
     [s,m]=min(Error);

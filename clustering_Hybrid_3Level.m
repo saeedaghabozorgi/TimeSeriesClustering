@@ -2,7 +2,8 @@ function [details]=clustering_Hybrid_3Level(nor_traj, k,p)
 %% ----------Level 1----------------------------------------------
 disp('level 1');
 c=[];
-[c,itr]= do_kModes_time(nor_traj,k,'Euclid',0,'SAX','alphabet_size',8,'compression_ratio',4);
+[c,itr]= do_kModes_time(nor_traj,k,0,'dis_method','Euclid','rep','SAX','alphabet_size',8,'compression_ratio',4);
+disp(['  DS:',num2str(length(nor_traj)),'  clusters:',num2str(k)]);
 %------------------
 % Evaluation
 %   [SSEP,SSEC,RI,purity,BCubed,ConEntropy,f_measure,jacard,FM,quality]= do_Evaluate(p,c,nor_traj,[],[]);
@@ -13,14 +14,16 @@ c=[];
 disp('level 2');
 clusterCount=max(c);
 for i=1:clusterCount
+    temp_c=[];
     newData=find(c(:,1)==i);
+   
     if length(newData)<5
-        c(newData,2)=0;
+        temp_c=ones(length(newData),1);
     else
-        %   temp_c= do_CAST_time (nor_traj(newData),'DTW',-1,'SAX','alphabet_size',8,'compression_ratio',2,'dtw_bound',0.5);
-        temp_c= do_CAST_time (nor_traj(newData),'DTW',-1,'RAW','dtw_bound',.9);
-        c(newData,2)=temp_c;
+        temp_c= do_CAST_time (nor_traj(newData),-1,'dis_method','DTW','rep','SAX','alphabet_size',8,'compression_ratio',1,'dtw_bound',0.5);
     end
+    c(newData,2)=temp_c;
+    disp(['  cluster:',num2str(i),'  Mems:',num2str(length(newData)),'  Clus:',num2str(max(temp_c))]);
 end
 %-------
 % to map raw objects to new clusters
@@ -37,34 +40,34 @@ for i=2:length(c)
     end
 end
 l2_clusterCount=max(c(:,4));
+disp(['  Number of clusters:',num2str(l2_clusterCount)]);
 %--evaluation---------------------------------------------------------
 %qual_2lev=Calculate_Cluster_correct_ratio(c(:,4),p);
 %     N_reduction_2lev=1-(l2_clusterCount/rows);
 %     purity2=Calculate_Cluster_Purity(c(:,4),p,1);
 %     level2_details(dataset_no,:)=[details_l1(dataset_no,7),qual_2lev,l2_clusterCount,purity2,N_reduction_2lev];
 %    Plot_time_series(0,0,c(:,4),p,[],nor_traj,t_traj,l2_clusterCount,2,2);
- %Plot_time_series_luminate(0,0,c(:,4),p,[],nor_traj,[],l2_clusterCount,2,0.5,2);
- % [SSEP,SSEC,RS,purity,BCubed,ConEntropy,fm]= do_Evaluate(p,cc,nor_traj,class_center,center);
+%Plot_time_series_luminate(0,0,c(:,4),p,[],nor_traj,[],l2_clusterCount,2,0.5,2);
+% [SSEP,SSEC,RS,purity,BCubed,ConEntropy,fm]= do_Evaluate(p,cc,nor_traj,class_center,center);
 
 %% --Level 3-------------------------------------------------
 % to make the prototypes
 disp('level 3');
+disp('  Making prototype');
 center=[];
 for i=1:l2_clusterCount;
-    center{i}=centre_mediod(c(:,4),i,nor_traj,'RAW','DTW','dtw_bound',0.9);
-  %         center{i}=centre_mediod(c(:,4),i,nor_traj,'SAX','DTW','alphabet_size',8,'compression_ratio',2,'dtw_bound',0.5);
+    center{i}=centre_mediod(c(:,4),i,nor_traj,'SAX','alphabet_size',8,'compression_ratio',1,'dtw_bound',0.5);
     weight(i,1)=length(find(c(:,4)==i));
-  
+    
 end
 %  Plot_time_series_luminate(0,0,c(:,4),p,center,nor_traj,[],l2_clusterCount,2,0.2,2);
-%-----------
+disp('  clustering');
 if l2_clusterCount>k
     %  k=5
-   
-      % [c3,Z]=do_Hierarchical_time(center,k,'DTW','complete',-1,'rep','SAX','alphabet_size',8,'compression_ratio',4,'dtw_bound',0.8);
-       %   [c3,itr]= do_kMeans_time (center,k,'DTW',0,'RAW','dtw_bound',1);
-     %   [c3,~]= do_kMediod_time (center,k,'DTW',0,'SAX','alphabet_size',8,'compression_ratio',4,'dtw_bound',0.5,'weight',weight);
-    [c3,~]= do_kMediod_time (center,k,'DTW',0,'RAW','dtw_bound',0.9);
+    
+    % [c3,Z]=do_Hierarchical_time(center,k,'DTW','complete',-1,'rep','SAX','alphabet_size',8,'compression_ratio',4,'dtw_bound',0.8);
+    %   [c3,itr]= do_kMeans_time (center,k,'DTW',0,'RAW','dtw_bound',1);
+    [c3,~]= do_kMediod_time (center,k,0,'dis_method','DTW','rep','SAX','alphabet_size',8,'compression_ratio',1,'dtw_bound',0.5,'weight',weight);
     for j=1:k
         l3_mems=find(c3==j);
         for i=1:length(l3_mems)
@@ -88,7 +91,7 @@ for j=1:length(center)
 end
 % Plot_time_series_luminate(0,0,c3,pp,[],center,[],k,2,0.5,3);
 %--------------------
- % Plot_time_series_luminate(0,0,c(:,5),p,[],nor_traj,[],k,2,0.5,4);
+% Plot_time_series_luminate(0,0,c(:,5),p,[],nor_traj,[],k,2,0.5,4);
 clus_center={};
 for i=1:k
     clus_center{i}=centre_mean(c(:,5),i,nor_traj);
@@ -115,11 +118,11 @@ mmean=mean(cluster_mem,1);
 end
 
 
-function medoid=centre_mediod(c,clusterNum,nor_traj,rep,dis_method,varargin)
+function medoid=centre_mediod(c,clusterNum,nor_traj,rep,varargin)
 t=find(c(:,1)==clusterNum);
 if isempty (t)
     medoid=[];
-elseif length(t)==1
+elseif length(t)<=2
     medoid=nor_traj{t(1)};
 else
     
@@ -131,10 +134,9 @@ else
     end
     
     %find distance of objects in cluster
-    dis=Mtx_Distance(nor_traj_rep,nor_traj_rep,'same',dis_method,varargin{:});
+    dis=Mtx_Distance(nor_traj_rep,nor_traj_rep,'same',varargin{:});
     
     %find the SSE
-    dis=dis+dis';
     dis=dis.^2;
     Error=sum(dis);
     [s,m]=min(Error);

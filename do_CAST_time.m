@@ -1,7 +1,7 @@
-function [C]=do_CAST_time(nor_traj_raw,dis_method,theroshold,rep,varargin)
+function [C]=do_CAST_time(nor_traj_raw,theroshold,varargin)
 
 
-options = struct('alphabet_size',0,'compression_ratio',0);
+options = struct('dis',[],'alphabet_size',0,'compression_ratio',0,'rep','RAW','dis_method','Euclid');
 optionNames = fieldnames(options);
 nArgs = length(varargin);
 if round(nArgs/2)~=nArgs/2
@@ -19,14 +19,17 @@ end
 
 
 % representation
-nor_traj=represent_TS(nor_traj_raw,rep,varargin{:});
+nor_traj=represent_TS(nor_traj_raw,options.rep,varargin{:});
 
 C=[];
 obj=nor_traj;
 U=[1:length(obj)]';
 C_open=[];
-dis=Mtx_Distance(nor_traj,nor_traj,'same',dis_method,varargin{:});
-dis=dis+dis';
+if isempty(options.dis)
+    dis=Mtx_Distance(nor_traj,nor_traj,'same',varargin{:});
+else
+    dis=options.dis;
+end
 sim=1-dis;
 sim(1:length(sim)+1:length(sim)*length(sim))=0;
 Cluster_num=1;
