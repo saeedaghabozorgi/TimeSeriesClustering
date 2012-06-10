@@ -52,7 +52,7 @@ while (~isempty(U))
     old_c=[];
     [~,inx]=MaxMat(sim,U);
     u=U(inx);
-    C_open(end+1,1)=u;
+    C_open=[C_open;u];
     U(inx,:)=[];
     % Update affinity of all nodes
     a_U=sum(sim(U,C_open),2);
@@ -65,7 +65,7 @@ while (~isempty(U))
         while max(a_U)>=fix_t ;
             [~,inx]= max(a_U,[],1);
             u=U(inx);
-            C_open(end+1,1)=u;
+            C_open=[C_open;u];
             U(inx,:)=[];
             % Update affinity of all nodes
             a_U=sum(sim(U,C_open),2)/length(C_open);
@@ -76,15 +76,13 @@ while (~isempty(U))
             [~,inx]=min(a_C_open,[],1);
             u=C_open(inx);
             C_open(inx)=[];
-            U(end+1,1)=u;
+            U=[U;u];
             % Update affinity of all nodes
             a_U=sum(sim(U,C_open),2)/length(C_open);
             a_C_open=sum(sim(C_open,C_open),2)/(length(C_open)-1);
         end
     end
-    for i=1:length(C_open)
-        C(C_open(i))=  Cluster_num;
-    end
+    C(C_open)=  Cluster_num;
     Cluster_num=Cluster_num+1;
 end
 end
@@ -103,7 +101,7 @@ end
 
 
 function T=calculateT1(U,sim) % ECAST
-fix_val=0.5;
+%fix_val=0.5;
 Affin=sum(sim,2)./(size(sim,1)-1);
 mu = mean(Affin);
 fix_val = mu;

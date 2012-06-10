@@ -2,7 +2,7 @@ function Plot_time_series_luminate(wplot,hplot,c,p,centroid,nor_traj,t_traj,clus
 
 if (wplot==0 || hplot==0)
     wplot=ceil(nthroot(clusterCount,2));
-    if (wplot*(wplot-1))>clusterCount
+    if (wplot*(wplot-1))>=clusterCount
         hplot= wplot-1;
     else
         hplot=wplot;
@@ -11,11 +11,6 @@ end
 %--incremental Plot--------------------------------------------------------------
 if clusterCount> wplot*hplot;
     rrr=wplot*hplot;
-    %     if wplot==hplot || wplot>hplot
-    %         hplot=hplot+1;
-    %     else
-    %         wplot=wplot+1;
-    %     end
 else
     rrr=clusterCount;
 end
@@ -52,7 +47,7 @@ for j=1:rrr
         set(h,'EdgeColor',color);
         set(h,'facealpha',0);
         set(h,'edgealpha',luminate);
-        axis([0 150 -4 4]);
+        axis([0 length(nor_traj{1}) -4 4]);
         hold on
     end
     if ~isempty(centroid)

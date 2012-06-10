@@ -7,7 +7,7 @@ for k=3:length(fnames)
     files_name{k-2}=fname;
 end
 disp('Reading data ..');
-for dataset_no=3:3 %length(files_name)
+for dataset_no=1:length(files_name)
     file_name=['..\data\dataset UCR\All train\' files_name{dataset_no}];
     disp([files_name(dataset_no)] );
     train_data = importdata(file_name);
@@ -46,12 +46,15 @@ end
 fileID = fopen('result.txt','a');
 for dataset_no=3:length(files_name)
     disp(['-------------------',files_name(dataset_no)] );
-    details(dataset_no,:)=clustering_Hybrid_3Level(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no});
+   details(dataset_no,:)=clustering_Hybrid_3Level(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no});
     
-   % [c,~]= do_kMediod_time (ds{dataset_no},cluster_count(dataset_no),'Euclid',0,'RAW');
-%     [c,~]=do_kMediod_time(ds{dataset_no},cluster_count(dataset_no),'SAXminDis',0,'SAX','alphabet_size',8,'compression_ratio',4);
-%     [SSEP,SSEC,RI,purity,BCubed,ConEntropy,f_measure,jacard,FM,quality]= do_Evaluate(pp{dataset_no},c,ds{dataset_no},[],[]);
-%     details(dataset_no,:)=[SSEP,SSEC,RI,purity,BCubed,ConEntropy,f_measure,jacard,FM,quality];
+%     [c,~]= do_kMediod_time (ds{dataset_no},cluster_count(dataset_no),0,'dis_method','Euclid','rep','RAW');
+%     Plot_time_series_luminate(0,0,c,pp{dataset_no},[],ds{dataset_no},[],cluster_count(dataset_no),2,0.5,1);
+    
+%     [c,~]= do_kMediod_time (ds{dataset_no},cluster_count(dataset_no),0,'dis_method','SAXminDis','rep','SAX','alphabet_size',8,'compression_ratio',4);
+%     [c,~]=do_Hierarchical_time(ds{dataset_no},cluster_count(dataset_no),'complete',-1,'dis_method','Euclid','rep','RAW','alphabet_size',8,'compression_ratio',4,'dtw_bound',0.8);
+%      [SSEP,SSEC,RI,purity,BCubed,ConEntropy,f_measure,jacard,FM,quality]= do_Evaluate(pp{dataset_no},c,ds{dataset_no},[],[]);
+%      details(dataset_no,:)=[SSEP,SSEC,RI,purity,BCubed,ConEntropy,f_measure,jacard,FM,quality];
 
     fprintf(fileID,'dataset_no: %d \n',dataset_no);
     dlmwrite('result.txt',details(dataset_no,:) ,'-append','delimiter', '\t','newline','pc');

@@ -1,6 +1,6 @@
-function [c,Zh]=do_Hierarchical_time(nor_traj_raw,k,dis_method,linkage_Method,Cutoff,varargin)
+function [c,Zh]=do_Hierarchical_time(nor_traj_raw,k,linkage_Method,Cutoff,varargin)
 
-options = struct('alphabet_size',0,'compression_ratio',0,'rep','RAW');
+options = struct('alphabet_size',0,'compression_ratio',0,'rep','RAW','dis_method','Euclid');
 optionNames = fieldnames(options);
 nArgs = length(varargin);
 if round(nArgs/2)~=nArgs/2
@@ -28,7 +28,7 @@ if k>Rows
     return;
 end
 
-dis=Mtx_Distance(nor_traj,nor_traj,'same',dis_method,varargin{:});
+dis=Mtx_Distance(nor_traj,nor_traj,'same',varargin{:});
 dis= squareform(dis+dis');
 Zh = linkage(dis,linkage_Method);
 
