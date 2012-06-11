@@ -40,22 +40,20 @@ end
 %  matlabpool close
 
 
-
-
-
 fileID = fopen('result.txt','a');
 for dataset_no=3:length(files_name)
     disp(['-------------------',files_name(dataset_no)] );
-   details(dataset_no,:)=clustering_Hybrid_3Level(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no});
+        details(dataset_no,:)=clustering_Hybrid_3Level(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no});
     
-%     [c,~]= do_kMediod_time (ds{dataset_no},cluster_count(dataset_no),0,'dis_method','Euclid','rep','RAW');
-%     Plot_time_series_luminate(0,0,c,pp{dataset_no},[],ds{dataset_no},[],cluster_count(dataset_no),2,0.5,1);
+    %     [c,~]= do_kMediod_time (ds{dataset_no},cluster_count(dataset_no),0,'dis_method','Euclid','rep','RAW');
+    %     Plot_time_series_luminate(0,0,c,pp{dataset_no},[],ds{dataset_no},[],cluster_count(dataset_no),2,0.5,1);
     
-%     [c,~]= do_kMediod_time (ds{dataset_no},cluster_count(dataset_no),0,'dis_method','SAXminDis','rep','SAX','alphabet_size',8,'compression_ratio',4);
-%     [c,~]=do_Hierarchical_time(ds{dataset_no},cluster_count(dataset_no),'complete',-1,'dis_method','Euclid','rep','RAW','alphabet_size',8,'compression_ratio',4,'dtw_bound',0.8);
-%      [SSEP,SSEC,RI,purity,BCubed,ConEntropy,f_measure,jacard,FM,quality]= do_Evaluate(pp{dataset_no},c,ds{dataset_no},[],[]);
-%      details(dataset_no,:)=[SSEP,SSEC,RI,purity,BCubed,ConEntropy,f_measure,jacard,FM,quality];
-
+    %     [c,~]= do_kMediod_time (ds{dataset_no},cluster_count(dataset_no),0,'dis_method','SAXminDis','rep','SAX','alphabet_size',8,'compression_ratio',4);
+    %      [c,Z]=do_Hierarchical_time(ds{dataset_no},cluster_count(dataset_no),'average',-1,'dis_method','SAXminDis','rep','SAX','alphabet_size',8,'compression_ratio',4,'dtw_bound',0.8);
+    %      [SSEP,SSEC,RI,purity,BCubed,ConEntropy,f_measure,jacard,FM,quality]= do_Evaluate(pp{dataset_no},c,ds{dataset_no},[],[]);
+    %       details(dataset_no,:)=[SSEP,SSEC,RI,purity,BCubed,ConEntropy,f_measure,jacard,FM,quality];
+    % h= dendrogram(Z);
+    %  Plot_time_series_luminate(0,0,c, pp{dataset_no},[],ds{dataset_no},[],cluster_count(dataset_no),2,0.5,4);
     fprintf(fileID,'dataset_no: %d \n',dataset_no);
     dlmwrite('result.txt',details(dataset_no,:) ,'-append','delimiter', '\t','newline','pc');
 end

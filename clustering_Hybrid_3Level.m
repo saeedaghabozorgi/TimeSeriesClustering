@@ -1,5 +1,5 @@
 function [details]=clustering_Hybrid_3Level(nor_traj, k,p)
-plot_show=0;
+plot_show=1;
 %% ----------Level 1----------------------------------------------
 disp('level 1');
 c=[];
@@ -22,7 +22,7 @@ for i=1:clusterCount
         temp_c=ones(length(newData),1);
     else
         
-        temp_c= do_CAST_time (nor_traj(newData),-1,'dis_method','DTW','rep','SAX','alphabet_size',8,'compression_ratio',2,'dtw_bound',0.5);
+        temp_c= do_CAST_time (nor_traj(newData),-1,'dis_method','DTW','rep','SAX','alphabet_size',8,'compression_ratio',1,'dtw_bound',0.8);
     end
     c(newData,2)=temp_c;
     disp(['  cluster:',num2str(i),'  Mems:',num2str(length(newData)),'  Clus:',num2str(max(temp_c))]);
@@ -58,7 +58,7 @@ disp('level 3');
 disp('  Making prototype');
 center=[];
 for i=1:l2_clusterCount;
-    center{i}=centre_mediod(c(:,4),i,nor_traj,'RAW','alphabet_size',8,'compression_ratio',2,'dtw_bound',0.5);
+    center{i}=centre_mediod(c(:,4),i,nor_traj,'RAW','alphabet_size',8,'compression_ratio',1,'dtw_bound',0.8);
     weight(i,1)=length(find(c(:,4)==i));
 end
 if plot_show  Plot_time_series_luminate(0,0,c(:,4),p,center,nor_traj,[],l2_clusterCount,2,0.2,2); end;
@@ -66,7 +66,7 @@ disp('  clustering');
 if l2_clusterCount>k
     %  k=5
     
-    [c3,Z]=do_Hierarchical_time(center,k,'complete',-1,'dis_method','DTW','rep','SAX','alphabet_size',8,'compression_ratio',2,'dtw_bound',0.5);
+    [c3,Z]=do_Hierarchical_time(center,k,'average',-1,'dis_method','DTW','rep','SAX','alphabet_size',8,'compression_ratio',1,'dtw_bound',0.8);
     %   [c3,itr]= do_kMeans_time (center,k,'DTW',0,'RAW','dtw_bound',1);
    %  [c3,~]= do_kMediod_time (center,k,0,'dis_method','DTW','rep','RAW','alphabet_size',8,'compression_ratio',1,'dtw_bound',1,'weight',weight);
     for j=1:k
@@ -81,7 +81,7 @@ else
 end
 
 %--evaluation-------------------------------------------------------------
-%h= dendrogram(Z);
+h= dendrogram(Z);
 % Plot_time_series(0,0,c(:,5),p,[],nor_traj,t_traj,k,3,2);
 %--------------------
 %-- to show the centers
