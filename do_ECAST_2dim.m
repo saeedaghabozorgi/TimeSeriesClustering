@@ -1,5 +1,5 @@
 function [C]=do_ECAST_2dim(D,t)
-D=rand(100,2);
+D=rand(10,2);
 t=0.7;
 %save('..\data\CAST_randData_10_1.mat', 'D');
 %load('..\data\CAST_randData_10_1.mat');
@@ -33,7 +33,6 @@ t=0.7;
 % D=[0 0;1 1; 2 1; 0 4; 2 5; 3 5; 3 4; 4 5; 4 4];
 % clf;
 % scatter(D(:,1),D(:,2),[],'b','c');
-% t=0.35
 %----------------
 
 cc=hsv(100);
@@ -49,13 +48,10 @@ cc=hsv(100);
 % distances=distances(:,2:end);
 % ssm=1./(1+distances);
 % t=mean(mean(ssm));
-
+theroshold=-1
 
 C=[];
-ECAST=0;
-if t==-1
-    ECAST=1;
-end
+
 
 U=(1:length(D))';
 % distance calculation
@@ -63,13 +59,23 @@ dis=dis_euclidean_matrix(D,D);
 
 %calculate similarity
 sim=1./(1+dis);
-%sim=1-NorDis;
+sim(1:length(sim)+1:length(sim)*length(sim))=0;
 
 Cluster_num=1;
 C=zeros(length(D),1);
 while (~isempty(U))
-    if ECAST==1
-        t=calculateT(U,sim);
+    if theroshold==-5
+        fix_t=calculateT4(U,sim);
+    elseif theroshold==-4
+        fix_t=calculateT4([1:1:length(sim)]',sim);
+    elseif theroshold==-3
+        fix_t=calculateT3(U,sim);
+    elseif theroshold==-2
+        fix_t=calculateT2(sim);
+    elseif theroshold==-1
+        fix_t=calculateT1(U,sim); % ECAST
+    else
+        fix_t=theroshold;
     end
     a=zeros(size(D,1),1);
     C_open=[];
@@ -82,57 +88,38 @@ while (~isempty(U))
     line(D(C_open,1),D(C_open,2),'color',[.5 .1 .9],'marker','p',  'linestyle','none','markersize',20)
     %pause;
     U(inx,:)=[];
-    for i=1:length(U) % Update a(U)
-        a(U(i),1)=a(U(i),1)+ sim(U(i),u);
-    end
-    for i=1:length(C_open) % Update a(C_open)
-        if  u~=C_open(i)
-            a(C_open(i),1)=a(C_open(i),1)+ sim(C_open(i),u);
-        end
-    end
+    a_U=sum(sim(U,C_open),2);
+    a_C_open=sum(sim(C_open,C_open),2);
     iteration=0;
-    while (~isequal(old_c,C_open) && iteration<200)
+    while (~isequal(old_c,C_open) && iteration<200 && ~isempty(U))
         iteration=iteration+1;
         old_c=C_open;
         line(D(C_open,1),D(C_open,2),'color',[.8 .1 .9],'marker','o','linestyle','none','markersize',10)
         %addition step
-        while max(a(U),[],1)>=t*length(C_open);
-            [~,inx]= max(a(U),[],1);
+        while max(a_U)>=fix_t ;
+            [~,inx]= max(a_U,[],1);
             u=U(inx);
             C_open=[C_open;u];
+            U(inx,:)=[];
             hold on;
             % scatter(D(C_open,1),D(C_open,2),[],'r');
             line(D(C_open,1),D(C_open,2),'color',[.8 .1 .9],'marker','o','linestyle','none','markersize',10)
-            %     pause;
-            U(inx,:)=[];
             % Update affinity of all nodes
-            for i=1:length(U) % Update a(U)
-                a(U(i),1)=a(U(i),1)+ sim(U(i),u);
-            end
-            for i=1:length(C_open) % Update a(C_open)
-                if  u~=C_open(i)
-                    a(C_open(i),1)=a(C_open(i),1)+ sim(C_open(i),u);
-                end
-            end
+            a_U=sum(sim(U,C_open),2)/length(C_open);
+            a_C_open=sum(sim(C_open,C_open),2)/(length(C_open)-1);
         end
         % Removal Step
-        while min(a(C_open),[],1)<t*(size(C_open,1)-1);
-            [~,inx]=min(a(C_open),[],1);
+        while min(a_C_open,[],1)<(fix_t);
+ [~,inx]=min(a_C_open,[],1);
             u=C_open(inx);
-            line(D(u,1),D(u,2),'color',[.8 .1 .9],'marker','+','linestyle','none','markersize',10)
-            C_open(inx,:)=[];
+            C_open(inx)=[];
             U=[U;u];
+            line(D(u,1),D(u,2),'color',[.8 .1 .9],'marker','+','linestyle','none','markersize',10)
             hold on;
             scatter(D(u,1),D(u,2),[],'b');
             %Update affinity of all nodes
-            for i=1:length(U)
-                if  u~=U(i)
-                    a(U(i),1)=a(U(i),1)- sim(U(i),u);
-                end
-            end
-            for i=1:length(C_open)
-                a(C_open(i),1)=a(C_open(i),1)- sim(C_open(i),u);
-            end
+            a_U=sum(sim(U,C_open),2)/length(C_open);
+            a_C_open=sum(sim(C_open,C_open),2)/(length(C_open)-1);
         end
     end
     
@@ -152,6 +139,25 @@ end
 %save('data\CAST_clusters_10_1.mat', 'C');
 end
 
+
+function T=calculateT1(U,sim) % mycast
+%fix_val=0.5;
+Affin=sum(sim,2)./(size(sim,1)-1);
+ma = mean(Affin);
+ms=mean(squareform(sim));
+fix_val = ma;
+sim2=sim(U,U);
+ms=mean(squareform(sim2));
+sim2(1:length(sim2)+1:length(sim2)*length(sim2))=0;
+sim2= squareform(sim2);
+sim2=sim2-fix_val;
+sim2=sim2(sim2>0);
+T=mean(mean(sim2))+fix_val;
+if isnan(T)
+    T=0;
+end
+end
+
 function [m,i]=MaxMat(d,U)
 d=tril(d,-1);
 d=d(:,U);
@@ -159,7 +165,7 @@ m=max(d);
 [m,i]=max(m,[],2);
 end
 
-function T=calculateT(U,sim)
+function T=calculateT(U,sim) %ECAST
 ea = 0;
 ecount = 0;
 

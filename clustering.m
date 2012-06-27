@@ -15,10 +15,10 @@ for dataset_no=1:length(files_name)
     
     p=train_data(:,1);
     if(min(p)==-1)
-        p(p==-1)=2;
+        p(p==-1)=max(p)+1;
     end
     if(min(p)==0)
-        p(p==0)=2;
+        p(p==0)=max(p)+1;
     end
     
     k=length(unique(TRAIN_class_labels));
@@ -41,21 +41,28 @@ end
 
 
 fileID = fopen('result.txt','a');
-for dataset_no=3:length(files_name)
+for dataset_no=11:length(files_name)
     disp(['-------------------',files_name(dataset_no)] );
-        details(dataset_no,:)=clustering_Hybrid_3Level(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no});
+    %     details(dataset_no,:)=clustering_Hybrid_3Level(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no});
+    Plot_time_series(3,2,pp{dataset_no},pp{dataset_no},[],ds{dataset_no},[],cluster_count(dataset_no),3,0);
     
+%     dis=Mtx_Distance(ds{dataset_no},ds{dataset_no},'same','dis_method','Euclid','rep','RAW');
+%     x=squareform(dis);
+%     figure(1);
+%     h = normplot(x);
+%     figure(2);
+%     hist(x)
     %     [c,~]= do_kMediod_time (ds{dataset_no},cluster_count(dataset_no),0,'dis_method','Euclid','rep','RAW');
     %     Plot_time_series_luminate(0,0,c,pp{dataset_no},[],ds{dataset_no},[],cluster_count(dataset_no),2,0.5,1);
     
     %     [c,~]= do_kMediod_time (ds{dataset_no},cluster_count(dataset_no),0,'dis_method','SAXminDis','rep','SAX','alphabet_size',8,'compression_ratio',4);
-    %      [c,Z]=do_Hierarchical_time(ds{dataset_no},cluster_count(dataset_no),'average',-1,'dis_method','SAXminDis','rep','SAX','alphabet_size',8,'compression_ratio',4,'dtw_bound',0.8);
-    %      [SSEP,SSEC,RI,purity,BCubed,ConEntropy,f_measure,jacard,FM,quality]= do_Evaluate(pp{dataset_no},c,ds{dataset_no},[],[]);
-    %       details(dataset_no,:)=[SSEP,SSEC,RI,purity,BCubed,ConEntropy,f_measure,jacard,FM,quality];
-    % h= dendrogram(Z);
-    %  Plot_time_series_luminate(0,0,c, pp{dataset_no},[],ds{dataset_no},[],cluster_count(dataset_no),2,0.5,4);
-    fprintf(fileID,'dataset_no: %d \n',dataset_no);
-    dlmwrite('result.txt',details(dataset_no,:) ,'-append','delimiter', '\t','newline','pc');
+%          [c,Z]=do_Hierarchical_time(ds{dataset_no},cluster_count(dataset_no),'average',-1,'dis_method','SAXminDis','rep','SAX','alphabet_size',8,'compression_ratio',4,'dtw_bound',0.8);
+%          [SSEP,SSEC,RI,purity,BCubed,ConEntropy,f_measure,jacard,FM,quality]= do_Evaluate(pp{dataset_no},c,ds{dataset_no},[],[]);
+%          details(dataset_no,:)=[SSEP,SSEC,RI,purity,BCubed,ConEntropy,f_measure,jacard,FM,quality];
+%          h= dendrogram(Z);
+%       Plot_time_series_luminate(0,0,c, pp{dataset_no},[],ds{dataset_no},[],cluster_count(dataset_no),2,0.5,4);
+%     fprintf(fileID,'dataset_no: %d \n',dataset_no);
+%     dlmwrite('result.txt',details(dataset_no,:) ,'-append','delimiter', '\t','newline','pc');
 end
 fprintf(fileID,'---------------------------------------------------------------------------------------------------------\n');
 fprintf(fileID,'\n');

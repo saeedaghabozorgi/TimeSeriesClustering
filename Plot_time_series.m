@@ -10,6 +10,7 @@ if (wplot==0 || hplot==0)
 end
 %--incremental Plot--------------------------------------------------------------
 if clusterCount> wplot*hplot;
+    clusterCount=6;
     rrr=wplot*hplot;
     %     if wplot==hplot || wplot>hplot
     %         hplot=hplot+1;
@@ -20,27 +21,38 @@ else
     rrr=clusterCount;
 end
 
+if isempty(t_traj)
+    for i=1:length(nor_traj)
+    t_traj{i}=[1:1:length(nor_traj{1})];
+    end
+end
 
 clus=cell(1,clusterCount);
 figure(fig_no);
 clf(fig_no);
 hold off
-cc=hsv(rrr);
-for j=1:rrr
+
+for j=1:clusterCount
     memStr=[];
     clus{j}=find(c(:,1)==j);
 
     %combinedStr=strcat('(cluster:',num2str(j),')');
     ax = subplot(hplot,wplot,j);
     cla(ax);
-    for i=1:length(clus{j})
+    ttt=3;
+    cc=hsv(ttt); %(length(clus{j}));
+    
+    if length(clus{j})<ttt 
+        ttt=length(clus{j});
+    end
+    for i=1:ttt %length(clus{j})
         ind=clus{j}(i,1);
         if showMems==1
             memStr = strcat(memStr,',',num2str(ind));
         elseif showMems==2
             memStr = strcat(memStr,',',num2str(p(ind)));
         end
-        color=cc(p(ind),:);
+        color=cc(i,:);
         plot(t_traj{ind},nor_traj{ind},'color',color,'LineWidth',2)
         hold on
     end

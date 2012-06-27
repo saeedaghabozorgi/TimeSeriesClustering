@@ -1,5 +1,5 @@
 function [details]=clustering_Hybrid_3Level(nor_traj, k,p)
-plot_show=1;
+plot_show=0;
 %% ----------Level 1----------------------------------------------
 disp('level 1');
 c=[];
@@ -17,7 +17,7 @@ clusterCount=max(c);
 for i=1:clusterCount
     temp_c=[];
     newData=find(c(:,1)==i);
-   disp(['  cluster:',num2str(i),'  Mems:',num2str(length(newData))]);
+    disp(['  cluster:',num2str(i),'  Mems:',num2str(length(newData))]);
     if length(newData)<5
         temp_c=ones(length(newData),1);
     else
@@ -68,7 +68,7 @@ if l2_clusterCount>k
     
     [c3,Z]=do_Hierarchical_time(center,k,'average',-1,'dis_method','DTW','rep','SAX','alphabet_size',8,'compression_ratio',1,'dtw_bound',0.8);
     %   [c3,itr]= do_kMeans_time (center,k,'DTW',0,'RAW','dtw_bound',1);
-   %  [c3,~]= do_kMediod_time (center,k,0,'dis_method','DTW','rep','RAW','alphabet_size',8,'compression_ratio',1,'dtw_bound',1,'weight',weight);
+    %  [c3,~]= do_kMediod_time (center,k,0,'dis_method','DTW','rep','RAW','alphabet_size',8,'compression_ratio',1,'dtw_bound',1,'weight',weight);
     for j=1:k
         l3_mems=find(c3==j);
         for i=1:length(l3_mems)
@@ -81,7 +81,7 @@ else
 end
 
 %--evaluation-------------------------------------------------------------
-h= dendrogram(Z);
+if plot_show h=dendrogram(Z);end;
 % Plot_time_series(0,0,c(:,5),p,[],nor_traj,t_traj,k,3,2);
 %--------------------
 %-- to show the centers
