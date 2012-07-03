@@ -12,6 +12,7 @@ for pair = reshape(varargin,2,[]) %# pair is {propName;propValue}
     inpName = lower(pair{1}); %# make case insensitive
     if any(strmatch(inpName,optionNames))
         options.(inpName) = pair{2};
+        %disp(['  ', num2str(inpName),' : ',num2str(options.(inpName))]);
         %    else
         %       error('%s is not a recognized parameter name',inpName)
     end
@@ -72,7 +73,7 @@ while (~isempty(U))
             a_C_open=sum(sim(C_open,C_open),2)/(length(C_open)-1);
         end
         % Removal Step
-        while min(a_C_open,[],1)<(fix_t);
+        while ( min(a_C_open,[],1)<(fix_t) && min(a_C_open,[],1) >0);
             [~,inx]=min(a_C_open,[],1);
             u=C_open(inx);
             C_open(inx)=[];

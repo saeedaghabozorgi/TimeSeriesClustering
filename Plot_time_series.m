@@ -10,7 +10,7 @@ if (wplot==0 || hplot==0)
 end
 %--incremental Plot--------------------------------------------------------------
 if clusterCount> wplot*hplot;
-    clusterCount=6;
+    clusterCount=2;
     rrr=wplot*hplot;
     %     if wplot==hplot || wplot>hplot
     %         hplot=hplot+1;

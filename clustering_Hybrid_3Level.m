@@ -1,31 +1,47 @@
-function [details]=clustering_Hybrid_3Level(nor_traj, k,p)
-plot_show=0;
+function [details]=clustering_Hybrid_3Level(nor_traj, k,p,varargin)
+plot_show=1;
+options = struct('l1_dis_method','SAXminDis','l1_dtw_bound',1,'l1_rep','SAX','l1_alphabet_size',8,'l1_compression_ratio',8,'l2_dis_method','SAXminDis','l2_dtw_bound',1,'l2_rep','SAX','l2_alphabet_size',8,'l2_compression_ratio',8,'l3_dis_method','SAXminDis','l3_dtw_bound',1,'l3_rep','SAX','l3_alphabet_size',8,'l3_compression_ratio',8,'l3_alg','k-medoid');
+optionNames = fieldnames(options);
+nArgs = length(varargin);
+if round(nArgs/2)~=nArgs/2
+    error('EXAMPLE needs propertyName/propertyValue pairs')
+end
+
+for pair = reshape(varargin,2,[]) %# pair is {propName;propValue}
+    inpName = lower(pair{1}); %# make case insensitive
+    if any(strmatch(inpName,optionNames))
+        options.(inpName) = pair{2};
+        %disp([num2str(inpName),' : ',num2str(options.(inpName))]);
+        %    else
+        %       error('%s is not a recognized parameter name',inpName)
+    end
+end
 %% ----------Level 1----------------------------------------------
 disp('level 1');
+disp(['  ','dis_method',':',options.l1_dis_method,' ','rep',':',options.l1_rep,' ','alphabet_size',':',num2str(options.l1_alphabet_size),' ','compression_ratio',':',num2str(options.l1_compression_ratio)]);
 c=[];
-[c,itr]= do_kModes_time(nor_traj,k,0,'dis_method','Euclid','rep','SAX','alphabet_size',8,'compression_ratio',4);
-disp(['  DS:',num2str(length(nor_traj)),'  clusters:',num2str(k)]);
+[c,itr]= do_kModes_time(nor_traj,k,0,'dis_method',options.l1_dis_method,'rep',options.l1_rep,'alphabet_size',options.l1_alphabet_size,'compression_ratio',options.l1_compression_ratio);
+disp(['  --> DS:',num2str(length(nor_traj)),'  clusters:',num2str(k)]);
 %------------------
 % Evaluation
 %   [SSEP,SSEC,RI,purity,BCubed,ConEntropy,f_measure,jacard,FM,quality]= do_Evaluate(p,c,nor_traj,[],[]);
 %   details_l1=[k,SSEP,SSEC,RI,purity,BCubed,ConEntropy,f_measure,jacard,FM,quality];
 if plot_show Plot_time_series_luminate(0,0,c,p,[],nor_traj,[],k,2,0.5,1); end;
 
-%% ----------Level 2--CAST(raw)--------------------------------------------
+%% ----------Level 2--CAST--------------------------------------------
 disp('level 2');
+disp(['  ','dis_method',':',options.l2_dis_method,' ','dtw_bound',':',num2str(options.l2_dtw_bound),' ','rep',':',options.l2_rep,' ','alphabet_size',':',num2str(options.l2_alphabet_size),' ','compression_ratio',':',num2str(options.l2_compression_ratio)]);
 clusterCount=max(c);
 for i=1:clusterCount
     temp_c=[];
     newData=find(c(:,1)==i);
-    disp(['  cluster:',num2str(i),'  Mems:',num2str(length(newData))]);
     if length(newData)<5
         temp_c=ones(length(newData),1);
     else
-        
-        temp_c= do_CAST_time (nor_traj(newData),-1,'dis_method','DTW','rep','SAX','alphabet_size',8,'compression_ratio',1,'dtw_bound',0.8);
+        temp_c= do_CAST_time (nor_traj(newData),0.97,'dis_method',options.l2_dis_method,'rep',options.l2_rep,'alphabet_size',options.l2_alphabet_size,'compression_ratio',options.l2_compression_ratio,'dtw_bound',options.l2_dtw_bound);
     end
     c(newData,2)=temp_c;
-    disp(['  cluster:',num2str(i),'  Mems:',num2str(length(newData)),'  Clus:',num2str(max(temp_c))]);
+    disp(['  --> cluster:',num2str(i),'  Mems:',num2str(length(newData)),'  Clus:',num2str(max(temp_c))]);
 end
 %-------
 % to map raw objects to new clusters
@@ -55,20 +71,23 @@ if plot_show Plot_time_series_luminate(0,0,c(:,4),p,[],nor_traj,[],l2_clusterCou
 %% --Level 3-------------------------------------------------
 % to make the prototypes
 disp('level 3');
-disp('  Making prototype');
+disp(['  ','dis_method',':',options.l3_dis_method,' ','dtw_bound',':',num2str(options.l3_dtw_bound),' ','rep',':',options.l3_rep,' ','alphabet_size',':',num2str(options.l3_alphabet_size),' ','compression_ratio',':',num2str(options.l3_compression_ratio)]);
+disp('  Making prototype ...');
 center=[];
 for i=1:l2_clusterCount;
-    center{i}=centre_mediod(c(:,4),i,nor_traj,'RAW','alphabet_size',8,'compression_ratio',1,'dtw_bound',0.8);
+    center{i}=centre_mediod(c(:,4),i,nor_traj,'dis_method',options.l3_dis_method,'rep',options.l3_rep,'alphabet_size',options.l3_alphabet_size,'compression_ratio',options.l3_compression_ratio,'dtw_bound',options.l3_dtw_bound);
     weight(i,1)=length(find(c(:,4)==i));
 end
 if plot_show  Plot_time_series_luminate(0,0,c(:,4),p,center,nor_traj,[],l2_clusterCount,2,0.2,2); end;
-disp('  clustering');
+disp(['  clustering:',num2str(options.l3_alg)]);
 if l2_clusterCount>k
-    %  k=5
-    
-    [c3,Z]=do_Hierarchical_time(center,k,'average',-1,'dis_method','DTW','rep','SAX','alphabet_size',8,'compression_ratio',1,'dtw_bound',0.8);
-    %   [c3,itr]= do_kMeans_time (center,k,'DTW',0,'RAW','dtw_bound',1);
-    %  [c3,~]= do_kMediod_time (center,k,0,'dis_method','DTW','rep','RAW','alphabet_size',8,'compression_ratio',1,'dtw_bound',1,'weight',weight);
+    if strmatch(options.l3_alg,'Hier')
+        [c3,Z]=do_Hierarchical_time(center,k,'average',-1,'dis_method','DTW','rep','SAX','alphabet_size',8,'compression_ratio',1,'dtw_bound',0.8);
+    elseif strmatch(options.l3_alg,'k-means')
+        [c3,itr]= do_kMeans_time (center,k,'DTW',0,'RAW','dtw_bound',1);
+    else
+        [c3,~]= do_kMediod_time (center,k,0,'weight',weight, 'dis_method',options.l3_dis_method,'rep',options.l3_rep,'alphabet_size',options.l3_alphabet_size,'compression_ratio',options.l3_compression_ratio,'dtw_bound',options.l3_dtw_bound);
+    end
     for j=1:k
         l3_mems=find(c3==j);
         for i=1:length(l3_mems)
@@ -81,7 +100,7 @@ else
 end
 
 %--evaluation-------------------------------------------------------------
-if plot_show h=dendrogram(Z);end;
+%if plot_show h=dendrogram(Z);end;
 % Plot_time_series(0,0,c(:,5),p,[],nor_traj,t_traj,k,3,2);
 %--------------------
 %-- to show the centers
@@ -119,29 +138,42 @@ mmean=mean(cluster_mem,1);
 end
 
 
-function medoid=centre_mediod(c,clusterNum,nor_traj,rep,varargin)
+function medoid=centre_mediod(c,clusterNum,nor_traj_raw,varargin)
+%clusterNum
+options = struct('rep','RAW');
+optionNames = fieldnames(options);
+nArgs = length(varargin);
+if round(nArgs/2)~=nArgs/2
+    error('EXAMPLE needs propertyName/propertyValue pairs')
+end
+for pair = reshape(varargin,2,[]) %# pair is {propName;propValue}
+    inpName = lower(pair{1}); %# make case insensitive
+    if any(strmatch(inpName,optionNames))
+        options.(inpName) = pair{2};
+    end
+end
+
+
+
 t=find(c(:,1)==clusterNum);
+
 if isempty (t)
     medoid=[];
 elseif length(t)<=2
-    medoid=nor_traj{t(1)};
+    nor_traj=represent_TS(nor_traj_raw(t),options.rep,varargin{:});
+    % medoid=nor_traj{1}; % transfered
+    medoid=nor_traj_raw{t(1)};
 else
-    
-    switch rep
-        case 'SAX'
-            nor_traj_rep=represent_TS(nor_traj(t),rep,varargin{:});
-        case 'RAW'
-            nor_traj_rep=nor_traj(t);
-    end
-    
+    nor_traj=represent_TS(nor_traj_raw(t),options.rep,varargin{:});
     %find distance of objects in cluster
-    dis=Mtx_Distance(nor_traj_rep,nor_traj_rep,'same',varargin{:});
+    dis=Mtx_Distance(nor_traj,nor_traj,'same',varargin{:});
     
     %find the SSE
     dis=dis.^2;
     Error=sum(dis);
     [s,m]=min(Error);
-    medoid=nor_traj{t(m)};
+    % medoid=nor_traj{m}; %transfered
+    medoid=nor_traj_raw{t(m)};
 end
 end
 
