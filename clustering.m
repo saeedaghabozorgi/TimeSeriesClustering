@@ -7,7 +7,7 @@ for k=3:length(fnames)
     files_name{k-2}=fname;
 end
 disp('Reading data ..');
-for dataset_no=9:9%length(files_name)
+for dataset_no=17:17%length(files_name)
     file_name=['..\data\dataset UCR\All train\' files_name{dataset_no}];
     disp([files_name(dataset_no)] );
     train_data = importdata(file_name);
@@ -41,11 +41,11 @@ end
 
 %%
 fileID = fopen('result.txt','a');
-for dataset_no=9:length(files_name)
+for dataset_no=17:length(files_name)
     disp(['-------------------',files_name(dataset_no)] );
-                parameter={'l1_dis_method','Euclid','l1_dtw_bound',1,'l1_rep','RAW','l1_alphabet_size',8,'l1_compression_ratio',6};
-     parameter=[parameter,  'l2_dis_method','DTW','l2_dtw_bound',1,'l2_rep','RAW','l2_alphabet_size',8,'l2_compression_ratio',1];
-     parameter=[parameter,  'l3_dis_method','DTW','l3_dtw_bound',1,'l3_rep','RAW','l3_alphabet_size',8,'l3_compression_ratio',1,'l3_alg','k-medoid'];
+                parameter={'l1_dis_method','SAXAPX','l1_dtw_bound',1,'l1_rep','SAX','l1_alphabet_size',8,'l1_compression_ratio',6};
+     parameter=[parameter,  'l2_dis_method','DTW','l2_dtw_bound',.07,'l2_rep','SAX','l2_alphabet_size',8,'l2_compression_ratio',6];
+     parameter=[parameter,  'l3_dis_method','DTW','l3_dtw_bound',0.7,'l3_rep','SAX','l3_alphabet_size',8,'l3_compression_ratio',6,'l3_alg','k-medoid'];
      details(dataset_no,:)=clustering_Hybrid_3Level(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no},parameter{:});
 %    Plot_time_series(2,1,pp{dataset_no},pp{dataset_no},[],ds{dataset_no},[],cluster_count(dataset_no),3,0);
     
@@ -61,7 +61,7 @@ for dataset_no=9:length(files_name)
     %     [c,~]= do_kMediod_time (ds{dataset_no},cluster_count(dataset_no),0,'dis_method','SAXminDis','rep','SAX','alphabet_size',8,'compression_ratio',4);
      %     [c,Z]=do_Hierarchical_time(ds{dataset_no},cluster_count(dataset_no),'average',-1,'dis_method','SAXminDis','rep','SAX','alphabet_size',8,'compression_ratio',4,'dtw_bound',0.8);
 
-          [SSEP,SSEC,RI,purity,BCubed,ConEntropy,f_measure,jacard,FM,quality]= do_Evaluate(pp{dataset_no},c,ds{dataset_no},[],[]);
+       %   [SSEP,SSEC,RI,purity,BCubed,ConEntropy,f_measure,jacard,FM,quality]= do_Evaluate(pp{dataset_no},c,ds{dataset_no},[],[]);
 %          details(dataset_no,:)=[SSEP,SSEC,RI,purity,BCubed,ConEntropy,f_measure,jacard,FM,quality];
 %          h= dendrogram(Z);
 %       Plot_time_series_luminate(0,0,c, pp{dataset_no},[],ds{dataset_no},[],cluster_count(dataset_no),2,0.5,4);

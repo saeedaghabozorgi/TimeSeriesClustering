@@ -24,9 +24,13 @@ c=[];
 disp(['  --> DS:',num2str(length(nor_traj)),'  clusters:',num2str(k)]);
 %------------------
 % Evaluation
-%   [SSEP,SSEC,RI,purity,BCubed,ConEntropy,f_measure,jacard,FM,quality]= do_Evaluate(p,c,nor_traj,[],[]);
+%
 %   details_l1=[k,SSEP,SSEC,RI,purity,BCubed,ConEntropy,f_measure,jacard,FM,quality];
-if plot_show Plot_time_series_luminate(0,0,c,p,[],nor_traj,[],k,2,0.5,1); end;
+if plot_show
+    Plot_time_series_luminate(0,0,c,p,[],nor_traj,[],k,0,0.5,1);
+    [SSEP,SSEC,RI,purity,BCubed,ConEntropy,f_measure,jacard,FM,quality]= do_Evaluate(p,c,nor_traj,[],[]);
+    disp(['  --> quality:',num2str(quality)]);
+end;
 
 %% ----------Level 2--CAST--------------------------------------------
 disp('level 2');
@@ -38,7 +42,7 @@ for i=1:clusterCount
     if length(newData)<5
         temp_c=ones(length(newData),1);
     else
-        temp_c= do_CAST_time (nor_traj(newData),0.97,'dis_method',options.l2_dis_method,'rep',options.l2_rep,'alphabet_size',options.l2_alphabet_size,'compression_ratio',options.l2_compression_ratio,'dtw_bound',options.l2_dtw_bound);
+        temp_c= do_CAST_time (nor_traj(newData),-1,'dis_method',options.l2_dis_method,'rep',options.l2_rep,'alphabet_size',options.l2_alphabet_size,'compression_ratio',options.l2_compression_ratio,'dtw_bound',options.l2_dtw_bound);
     end
     c(newData,2)=temp_c;
     disp(['  --> cluster:',num2str(i),'  Mems:',num2str(length(newData)),'  Clus:',num2str(max(temp_c))]);
@@ -60,14 +64,13 @@ end
 l2_clusterCount=max(c(:,4));
 disp(['  Number of clusters:',num2str(l2_clusterCount)]);
 %--evaluation---------------------------------------------------------
-%qual_2lev=Calculate_Cluster_correct_ratio(c(:,4),p);
-%     N_reduction_2lev=1-(l2_clusterCount/rows);
-%     purity2=Calculate_Cluster_Purity(c(:,4),p,1);
-%     level2_details(dataset_no,:)=[details_l1(dataset_no,7),qual_2lev,l2_clusterCount,purity2,N_reduction_2lev];
-%    Plot_time_series(0,0,c(:,4),p,[],nor_traj,t_traj,l2_clusterCount,2,2);
-if plot_show Plot_time_series_luminate(0,0,c(:,4),p,[],nor_traj,[],l2_clusterCount,2,0.5,2); end;
-% [SSEP,SSEC,RS,purity,BCubed,ConEntropy,fm]= do_Evaluate(p,cc,nor_traj,class_center,center);
-
+if plot_show
+    Plot_time_series_luminate(0,0,c(:,4),p,[],nor_traj,[],l2_clusterCount,2,0.5,2);
+    % [SSEP,SSEC,RS,purity,BCubed,ConEntropy,fm]= do_Evaluate(p,cc,nor_traj,class_center,center);
+    %qual_2lev=Calculate_Cluster_correct_ratio(c(:,4),p);
+    %     N_reduction_2lev=1-(l2_clusterCount/rows);
+    %     purity2=Calculate_Cluster_Purity(c(:,4),p,1);
+end;
 %% --Level 3-------------------------------------------------
 % to make the prototypes
 disp('level 3');
@@ -78,11 +81,13 @@ for i=1:l2_clusterCount;
     center{i}=centre_mediod(c(:,4),i,nor_traj,'dis_method',options.l3_dis_method,'rep',options.l3_rep,'alphabet_size',options.l3_alphabet_size,'compression_ratio',options.l3_compression_ratio,'dtw_bound',options.l3_dtw_bound);
     weight(i,1)=length(find(c(:,4)==i));
 end
-if plot_show  Plot_time_series_luminate(0,0,c(:,4),p,center,nor_traj,[],l2_clusterCount,2,0.2,2); end;
+if plot_show 
+    % Plot_time_series_luminate(0,0,c(:,4),p,center,nor_traj,[],l2_clusterCount,2,0.2,2); 
+end;
 disp(['  clustering:',num2str(options.l3_alg)]);
 if l2_clusterCount>k
-    if strmatch(options.l3_alg,'Hier')
-        [c3,Z]=do_Hierarchical_time(center,k,'average',-1,'dis_method','DTW','rep','SAX','alphabet_size',8,'compression_ratio',1,'dtw_bound',0.8);
+    if strmatch(options.l3_alg,'Hier_avg')
+        [c3,Z]=do_Hierarchical_time(center,k,'average',-1,'dis_method',options.l3_dis_method,'rep',options.l3_rep,'alphabet_size',options.l3_alphabet_size,'compression_ratio',options.l3_compression_ratio,'dtw_bound',options.l3_dtw_bound);
     elseif strmatch(options.l3_alg,'k-means')
         [c3,itr]= do_kMeans_time (center,k,'DTW',0,'RAW','dtw_bound',1);
     else
@@ -109,15 +114,16 @@ for j=1:length(center)
     xx=p(sub_members);
     pp(j,1)=mode(xx); %  to find more frequent in this cluster
 end
-if plot_show Plot_time_series_luminate(0,0,c3,pp,[],center,[],k,2,0.5,3); end;
-%--------------------
-if plot_show Plot_time_series_luminate(0,0,c(:,5),p,[],nor_traj,[],k,2,0.5,4); end;
 clus_center={};
 for i=1:k
     clus_center{i}=centre_mean(c(:,5),i,nor_traj);
 end
 [SSEP,SSEC,RI,purity,BCubed,ConEntropy,f_measure,jacard,FM,quality]= do_Evaluate(p,c(:,5),nor_traj,[],[]);
-
+if plot_show 
+    Plot_time_series_luminate(0,0,c3,pp,[],center,[],k,2,0.5,3); 
+    Plot_time_series_luminate(0,0,c(:,5),p,[],nor_traj,[],k,2,0.5,4); 
+    disp(['  --> quality:',num2str(quality)]);
+end;
 details=[SSEP,SSEC,RI,purity,BCubed,ConEntropy,f_measure,jacard,FM,quality];
 end
 

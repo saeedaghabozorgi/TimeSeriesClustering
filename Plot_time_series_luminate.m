@@ -57,9 +57,10 @@ for j=1:rrr
         plot(ti,centroid{j},'color',centroid_color,'LineWidth',1)
     end
     combinedStr = strcat('Clus',num2str(j),'(',num2str(length(clus{j})),')');
-    
-    if showMems>0
-        combinedStr = strcat(combinedStr,'-',memStr);
-    end
+        if showMems==1
+            combinedStr = strcat(combinedStr,'-',memStr);
+        elseif showMems==2
+            combinedStr = strcat(combinedStr,'-',memStr);
+        end
     title(combinedStr);
 end
