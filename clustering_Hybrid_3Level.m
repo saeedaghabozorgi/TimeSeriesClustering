@@ -121,7 +121,7 @@ end
 [SSEP,SSEC,RI,purity,BCubed,ConEntropy,f_measure,jacard,FM,quality]= do_Evaluate(p,c(:,5),nor_traj,[],[]);
 if plot_show 
     Plot_time_series_luminate(0,0,c3,pp,[],center,[],k,2,0.5,3); 
-    Plot_time_series_luminate(0,0,c(:,5),p,[],nor_traj,[],k,2,0.5,4); 
+    Plot_time_series_luminate(0,0,c(:,5),p,[],nor_traj,[],k,0,0.5,4); 
     disp(['  --> quality:',num2str(quality)]);
 end;
 details=[SSEP,SSEC,RI,purity,BCubed,ConEntropy,f_measure,jacard,FM,quality];
