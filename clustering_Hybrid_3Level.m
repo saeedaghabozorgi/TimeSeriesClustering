@@ -1,5 +1,5 @@
 function [details]=clustering_Hybrid_3Level(nor_traj, k,p,varargin)
-plot_show=1;
+plot_show=0;
 options = struct('l1_dis_method','SAXminDis','l1_dtw_bound',1,'l1_rep','SAX','l1_alphabet_size',8,'l1_compression_ratio',8,'l2_dis_method','SAXminDis','l2_dtw_bound',1,'l2_rep','SAX','l2_alphabet_size',8,'l2_compression_ratio',8,'l3_dis_method','SAXminDis','l3_dtw_bound',1,'l3_rep','SAX','l3_alphabet_size',8,'l3_compression_ratio',8,'l3_alg','k-medoid');
 optionNames = fieldnames(options);
 nArgs = length(varargin);
@@ -20,8 +20,10 @@ end
 disp('level 1');
 disp(['  ','dis_method',':',options.l1_dis_method,' ','rep',':',options.l1_rep,' ','alphabet_size',':',num2str(options.l1_alphabet_size),' ','compression_ratio',':',num2str(options.l1_compression_ratio)]);
 c=[];
-[c,itr]= do_kModes_time(nor_traj,k,0,'dis_method',options.l1_dis_method,'rep',options.l1_rep,'alphabet_size',options.l1_alphabet_size,'compression_ratio',options.l1_compression_ratio);
-disp(['  --> DS:',num2str(length(nor_traj)),'  clusters:',num2str(k)]);
+%k1=round(length(nor_traj)/100);
+k1=k;
+[c,itr]= do_kModes_time(nor_traj,k1,0,'dis_method',options.l1_dis_method,'rep',options.l1_rep,'alphabet_size',options.l1_alphabet_size,'compression_ratio',options.l1_compression_ratio);
+disp(['  --> DS:',num2str(length(nor_traj)),'  clusters:',num2str(k1)]);
 %------------------
 % Evaluation
 %
@@ -49,7 +51,7 @@ for i=1:clusterCount
 end
 %-------
 % to map raw objects to new clusters
-c(:,3)=c(:,1)*1000+c(:,2);
+c(:,3)=c(:,1)*10000+c(:,2);
 [x,y]=sort(c);
 clsNum=1;
 c(y(1,3),4)=clsNum;
@@ -66,13 +68,16 @@ disp(['  Number of clusters:',num2str(l2_clusterCount)]);
 %--evaluation---------------------------------------------------------
 if plot_show
     Plot_time_series_luminate(0,0,c(:,4),p,[],nor_traj,[],l2_clusterCount,2,0.5,2);
-    % [SSEP,SSEC,RS,purity,BCubed,ConEntropy,fm]= do_Evaluate(p,cc,nor_traj,class_center,center);
-    %qual_2lev=Calculate_Cluster_correct_ratio(c(:,4),p);
-    %     N_reduction_2lev=1-(l2_clusterCount/rows);
-    %     purity2=Calculate_Cluster_Purity(c(:,4),p,1);
 end;
+    % [SSEP,SSEC,RS,purity,BCubed,ConEntropy,fm]= do_Evaluate(p,cc,nor_traj,class_center,center);
+         %   purity2=Calculate_Cluster_Purity(c(:,4),p,1);
+%     qual_2lev=Calculate_Cluster_correct_ratio(c(:,4),p);
+%     N_reduction_2lev=1-l2_clusterCount/length(nor_traj);
+%     error_rate=Calculate_error_rate(c(:,4),p)
+%     details=[length(nor_traj),N_reduction_2lev,error_rate] 
 %% --Level 3-------------------------------------------------
 % to make the prototypes
+%return;
 disp('level 3');
 disp(['  ','dis_method',':',options.l3_dis_method,' ','dtw_bound',':',num2str(options.l3_dtw_bound),' ','rep',':',options.l3_rep,' ','alphabet_size',':',num2str(options.l3_alphabet_size),' ','compression_ratio',':',num2str(options.l3_compression_ratio)]);
 disp('  Making prototype ...');
@@ -118,13 +123,13 @@ clus_center={};
 for i=1:k
     clus_center{i}=centre_mean(c(:,5),i,nor_traj);
 end
-[SSEP,SSEC,RI,purity,BCubed,ConEntropy,f_measure,jacard,FM,quality]= do_Evaluate(p,c(:,5),nor_traj,[],[]);
+[SSEP,SSEC,RI,ARI,purity,BCubed,ConEntropy,f_measure,jacard,FM,NMI,quality]= do_Evaluate(p,c(:,5),nor_traj,[],[]);
 if plot_show 
     Plot_time_series_luminate(0,0,c3,pp,[],center,[],k,2,0.5,3); 
     Plot_time_series_luminate(0,0,c(:,5),p,[],nor_traj,[],k,0,0.5,4); 
     disp(['  --> quality:',num2str(quality)]);
 end;
-details=[SSEP,SSEC,RI,purity,BCubed,ConEntropy,f_measure,jacard,FM,quality];
+details=[SSEP,SSEC,RI,ARI,purity,BCubed,ConEntropy,f_measure,jacard,FM,NMI,quality];
 end
 
 
