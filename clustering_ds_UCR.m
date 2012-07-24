@@ -1,4 +1,4 @@
-function clustering
+function clustering_ds_UCR
 
 fnames = dir('..\data\dataset UCR\All train\*');
 
@@ -7,7 +7,7 @@ for k=3:length(fnames)
     files_name{k-2}=fname;
 end
 disp('Reading data ..');
-for dataset_no=3:3%length(files_name)
+for dataset_no=1:3%length(files_name)
     file_name=['..\data\dataset UCR\All train\' files_name{dataset_no}];
     disp([files_name(dataset_no)] );
     train_data = importdata(file_name);
@@ -31,19 +31,11 @@ for dataset_no=3:3%length(files_name)
     %   details(dataset_no,:)=clustering_Hybrid_3Level(nor_traj,k,p);
 end
 
-% -------------------------
-%   matlabpool open 8
-%  parfor dataset_no=14:length(files_name)
-%      files_name(dataset_no);
-%       details(dataset_no,:)=clustering_Hybrid_3Level(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no});
-%  end
-%  matlabpool close
-
 %%
 fileID = fopen('result.txt','a');
-for dataset_no=3:3%length(files_name)
+for dataset_no=3:3 %length(files_name)
     disp(['-------------------',files_name(dataset_no)] );
-                parameter={'l1_dis_method','SAXAPX','l1_dtw_bound',1,'l1_rep','SAX','l1_alphabet_size',8,'l1_compression_ratio',6};
+     parameter={'l1_dis_method','SAXAPX','l1_dtw_bound',1,'l1_rep','SAX','l1_alphabet_size',8,'l1_compression_ratio',6};
      parameter=[parameter,  'l2_dis_method','DTW','l2_dtw_bound',.07,'l2_rep','RAW','l2_alphabet_size',8,'l2_compression_ratio',6];
      parameter=[parameter,  'l3_dis_method','DTW','l3_dtw_bound',0.7,'l3_rep','SAX','l3_alphabet_size',8,'l3_compression_ratio',6,'l3_alg','k-medoid'];
      details(dataset_no,:)=clustering_Hybrid_3Level(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no},parameter{:});
@@ -66,7 +58,8 @@ for dataset_no=3:3%length(files_name)
 %          h= dendrogram(Z);
 %       Plot_time_series_luminate(0,0,c, pp{dataset_no},[],ds{dataset_no},[],cluster_count(dataset_no),2,0.5,4);
 %     fprintf(fileID,'dataset_no: %d \n',dataset_no);
-%     dlmwrite('result.txt',details(dataset_no,:) ,'-append','delimiter', '\t','newline','pc');
+%     dlmwrite('result.txt',details(dataset_no,:) ,'-append','delimiter',
+%     '\t','newline','pc');
 end
 fprintf(fileID,'---------------------------------------------------------------------------------------------------------\n');
 fprintf(fileID,'\n');

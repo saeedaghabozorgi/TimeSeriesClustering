@@ -1,4 +1,4 @@
-function [c]=clustering_l2_purify(c,p,nor_traj,varargin)
+function [c error_rate N_reduction_2lev]=clustering_l2_purify(c,p,nor_traj,varargin)
 plot_show=0;
 options = struct('l2_dis_method','SAXminDis','l2_dtw_bound',1,'l2_rep','SAX','l2_alphabet_size',8,'l2_compression_ratio',8);
 optionNames = fieldnames(options);
@@ -18,7 +18,7 @@ for pair = reshape(varargin,2,[]) %# pair is {propName;propValue}
 end
 %% ----------Level 2--CAST--------------------------------------------
 disp('level 2');
-disp(['  ','dis_method',':',options.l2_dis_method,' ','dtw_bound',':',num2str(options.l2_dtw_bound),' ','rep',':',options.l2_rep,' ','alphabet_size',':',num2str(options.l2_alphabet_size),' ','compression_ratio',':',num2str(options.l2_compression_ratio)]);
+disp(['  ','DS',':',num2str(length(c)),' | ','dis_method',':',options.l2_dis_method,' | ','dtw_bound',':',num2str(options.l2_dtw_bound),' | ','rep',':',options.l2_rep,' | ','alphabet_size',':',num2str(options.l2_alphabet_size),' ','compression_ratio',':',num2str(options.l2_compression_ratio)]);
 clusterCount=max(c);
 for i=1:clusterCount
     temp_c=[];
@@ -46,7 +46,7 @@ for i=2:length(c)
     end
 end
 l2_clusterCount=max(c(:,4));
-disp(['  Number of clusters:',num2str(l2_clusterCount)]);
+
 %--evaluation---------------------------------------------------------
 if plot_show
     Plot_time_series_luminate(0,0,c(:,4),p,[],nor_traj,[],l2_clusterCount,2,0.5,2);
@@ -54,7 +54,8 @@ end;
     % [SSEP,SSEC,RS,purity,BCubed,ConEntropy,fm]= do_Evaluate(p,cc,nor_traj,class_center,center);
          %   purity2=Calculate_Cluster_Purity(c(:,4),p,1);
 %     qual_2lev=Calculate_Cluster_correct_ratio(c(:,4),p);
-%     N_reduction_2lev=1-l2_clusterCount/length(nor_traj);
-%     error_rate=Calculate_error_rate(c(:,4),p)
-%     details=[length(nor_traj),N_reduction_2lev,error_rate] 
+     N_reduction_2lev=1-l2_clusterCount/length(nor_traj);
+     error_rate=Calculate_error_rate(c(:,4),p);
+     c=c(:,4);
+disp(['  --> Number of clusters:',num2str(l2_clusterCount),' | ','error_rate:', num2str(error_rate),' | ', 'reduction:', num2str(N_reduction_2lev)]);
 end

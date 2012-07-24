@@ -19,11 +19,11 @@ end
 
 disp('  Making prototype ...');
 center=[];
-l2_clusterCount=max(c(:,4));
+l2_clusterCount=max(c);
 for i=1:l2_clusterCount;
-    %center{i}=centre_mediod(c(:,4),i,nor_traj,'dis_method',options.l3_dis_method,'rep',options.l3_rep,'alphabet_size',options.l3_alphabet_size,'compression_ratio',options.l3_compression_ratio,'dtw_bound',options.l3_dtw_bound);
-    center{i}=centre_randoid(c(:,4),i,nor_traj,'dis_method',options.l3_dis_method,'rep',options.l3_rep,'alphabet_size',options.l3_alphabet_size,'compression_ratio',options.l3_compression_ratio,'dtw_bound',options.l3_dtw_bound);
-    weight(i,1)=length(find(c(:,4)==i));
+    %center{i}=centre_mediod(c,i,nor_traj,'dis_method',options.l3_dis_method,'rep',options.l3_rep,'alphabet_size',options.l3_alphabet_size,'compression_ratio',options.l3_compression_ratio,'dtw_bound',options.l3_dtw_bound);
+    center{i}=centre_randoid(c,i,nor_traj,'dis_method',options.l3_dis_method,'rep',options.l3_rep,'alphabet_size',options.l3_alphabet_size,'compression_ratio',options.l3_compression_ratio,'dtw_bound',options.l3_dtw_bound);
+    weight(i,1)=length(find(c==i));
 end
 if plot_show 
     % Plot_time_series_luminate(0,0,c(:,4),p,center,nor_traj,[],l2_clusterCount,2,0.2,2); 

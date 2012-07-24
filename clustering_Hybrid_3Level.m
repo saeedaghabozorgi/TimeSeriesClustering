@@ -16,120 +16,19 @@ for pair = reshape(varargin,2,[]) %# pair is {propName;propValue}
         %       error('%s is not a recognized parameter name',inpName)
     end
 end
-%% ----------Level 1----------------------------------------------
-disp('level 1');
-disp(['  ','dis_method',':',options.l1_dis_method,' ','rep',':',options.l1_rep,' ','alphabet_size',':',num2str(options.l1_alphabet_size),' ','compression_ratio',':',num2str(options.l1_compression_ratio)]);
-c=[];
-%k1=round(length(nor_traj)/100);
-k1=k;
-[c,itr]= do_kModes_time(nor_traj,k1,0,'dis_method',options.l1_dis_method,'rep',options.l1_rep,'alphabet_size',options.l1_alphabet_size,'compression_ratio',options.l1_compression_ratio);
-disp(['  --> DS:',num2str(length(nor_traj)),'  clusters:',num2str(k1)]);
-%------------------
-% Evaluation
-%
-%   details_l1=[k,SSEP,SSEC,RI,purity,BCubed,ConEntropy,f_measure,jacard,FM,quality];
-if plot_show
-    Plot_time_series_luminate(0,0,c,p,[],nor_traj,[],k,0,0.5,1);
-    [SSEP,SSEC,RI,purity,BCubed,ConEntropy,f_measure,jacard,FM,quality]= do_Evaluate(p,c,nor_traj,[],[]);
-    disp(['  --> quality:',num2str(quality)]);
-end;
 
-%% ----------Level 2--CAST--------------------------------------------
-disp('level 2');
-disp(['  ','dis_method',':',options.l2_dis_method,' ','dtw_bound',':',num2str(options.l2_dtw_bound),' ','rep',':',options.l2_rep,' ','alphabet_size',':',num2str(options.l2_alphabet_size),' ','compression_ratio',':',num2str(options.l2_compression_ratio)]);
-clusterCount=max(c);
-for i=1:clusterCount
-    temp_c=[];
-    newData=find(c(:,1)==i);
-    if length(newData)<5
-        temp_c=ones(length(newData),1);
-    else
-        temp_c= do_CAST_time (nor_traj(newData),-1,'dis_method',options.l2_dis_method,'rep',options.l2_rep,'alphabet_size',options.l2_alphabet_size,'compression_ratio',options.l2_compression_ratio,'dtw_bound',options.l2_dtw_bound);
-    end
-    c(newData,2)=temp_c;
-    disp(['  --> cluster:',num2str(i),'  Mems:',num2str(length(newData)),'  Clus:',num2str(max(temp_c))]);
-end
-%-------
-% to map raw objects to new clusters
-c(:,3)=c(:,1)*10000+c(:,2);
-[x,y]=sort(c);
-clsNum=1;
-c(y(1,3),4)=clsNum;
-for i=2:length(c)
-    if ( x(i,3) ~= x(i-1,3))
-        clsNum=clsNum+1;
-        c(y(i,3),4)=clsNum;
-    else
-        c(y(i,3),4)=clsNum;
-    end
-end
-l2_clusterCount=max(c(:,4));
-disp(['  Number of clusters:',num2str(l2_clusterCount)]);
-%--evaluation---------------------------------------------------------
-if plot_show
-    Plot_time_series_luminate(0,0,c(:,4),p,[],nor_traj,[],l2_clusterCount,2,0.5,2);
-end;
-    % [SSEP,SSEC,RS,purity,BCubed,ConEntropy,fm]= do_Evaluate(p,cc,nor_traj,class_center,center);
-         %   purity2=Calculate_Cluster_Purity(c(:,4),p,1);
-%     qual_2lev=Calculate_Cluster_correct_ratio(c(:,4),p);
-%     N_reduction_2lev=1-l2_clusterCount/length(nor_traj);
-%     error_rate=Calculate_error_rate(c(:,4),p)
-%     details=[length(nor_traj),N_reduction_2lev,error_rate] 
-%% --Level 3-------------------------------------------------
-% to make the prototypes
-%return;
-disp('level 3');
-disp(['  ','dis_method',':',options.l3_dis_method,' ','dtw_bound',':',num2str(options.l3_dtw_bound),' ','rep',':',options.l3_rep,' ','alphabet_size',':',num2str(options.l3_alphabet_size),' ','compression_ratio',':',num2str(options.l3_compression_ratio)]);
-disp('  Making prototype ...');
-center=[];
-for i=1:l2_clusterCount;
-    center{i}=centre_mediod(c(:,4),i,nor_traj,'dis_method',options.l3_dis_method,'rep',options.l3_rep,'alphabet_size',options.l3_alphabet_size,'compression_ratio',options.l3_compression_ratio,'dtw_bound',options.l3_dtw_bound);
-    weight(i,1)=length(find(c(:,4)==i));
-end
-if plot_show 
-    % Plot_time_series_luminate(0,0,c(:,4),p,center,nor_traj,[],l2_clusterCount,2,0.2,2); 
-end;
-disp(['  clustering:',num2str(options.l3_alg)]);
-if l2_clusterCount>k
-    if strmatch(options.l3_alg,'Hier_avg')
-        [c3,Z]=do_Hierarchical_time(center,k,'average',-1,'dis_method',options.l3_dis_method,'rep',options.l3_rep,'alphabet_size',options.l3_alphabet_size,'compression_ratio',options.l3_compression_ratio,'dtw_bound',options.l3_dtw_bound);
-    elseif strmatch(options.l3_alg,'k-means')
-        [c3,itr]= do_kMeans_time (center,k,'DTW',0,'RAW','dtw_bound',1);
-    else
-        [c3,~]= do_kMediod_time (center,k,0,'weight',weight, 'dis_method',options.l3_dis_method,'rep',options.l3_rep,'alphabet_size',options.l3_alphabet_size,'compression_ratio',options.l3_compression_ratio,'dtw_bound',options.l3_dtw_bound);
-    end
-    for j=1:k
-        l3_mems=find(c3==j);
-        for i=1:length(l3_mems)
-            sub_members=find(c(:,4)==l3_mems(i));
-            c(sub_members,5)=j;
-        end
-    end
-else
-    c(:,5)=c(:,4);
-end
+  %% ------------ Level 1-- k-mode --------
+    parameter1={'l1_dis_method','Euclid','l1_dtw_bound',1,'l1_rep','RAW','l1_alphabet_size',8,'l1_compression_ratio',6};
+    c=clustering_l1_preclustering(k,p,nor_traj,parameter1{:});
+   
+    %% -------------Level 2--CAST--------------------------------------------
+    parameter2={'l2_dis_method','DTW','l2_dtw_bound',0.8,'l2_rep','RAW','l2_alphabet_size',8,'l2_compression_ratio',2};
+    c=clustering_l2_purify(c,p,nor_traj,parameter2{:});
+    [center weight]=clustering_l2_making_prototype(c,nor_traj,parameter2{:});
+    %% --------------Level 3-------------------------------------------------
+    parameter3={'l3_dis_method','DTW','l3_dtw_bound',0.9,'l3_rep','RAW','l3_alphabet_size',8,'l3_compression_ratio',6,'l3_alg','k-medoid'};
+    [c ,details]=clustering_l3_merge(c,p,k,center,nor_traj,weight,parameter3{:});
 
-%--evaluation-------------------------------------------------------------
-%if plot_show h=dendrogram(Z);end;
-% Plot_time_series(0,0,c(:,5),p,[],nor_traj,t_traj,k,3,2);
-%--------------------
-%-- to show the centers
-for j=1:length(center)
-    sub_members=find(c(:,4)==j);
-    xx=p(sub_members);
-    pp(j,1)=mode(xx); %  to find more frequent in this cluster
-end
-clus_center={};
-for i=1:k
-    clus_center{i}=centre_mean(c(:,5),i,nor_traj);
-end
-[SSEP,SSEC,RI,ARI,purity,BCubed,ConEntropy,f_measure,jacard,FM,NMI,quality]= do_Evaluate(p,c(:,5),nor_traj,[],[]);
-if plot_show 
-    Plot_time_series_luminate(0,0,c3,pp,[],center,[],k,2,0.5,3); 
-    Plot_time_series_luminate(0,0,c(:,5),p,[],nor_traj,[],k,0,0.5,4); 
-    disp(['  --> quality:',num2str(quality)]);
-end;
-details=[SSEP,SSEC,RI,ARI,purity,BCubed,ConEntropy,f_measure,jacard,FM,NMI,quality];
 end
 
 

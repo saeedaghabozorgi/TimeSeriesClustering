@@ -105,6 +105,9 @@ function T=calculateT1(U,sim) % ECAST
 %fix_val=0.5;
 Affin=sum(sim,2)./(size(sim,1)-1);
 mu = mean(Affin);
+%sigma = std(Affin)
+%outliers = abs(Affin - mu) > sigma;
+%out=length(find(outliers==1))
 fix_val = mu;
 sim2=sim(U,U);
 sim2(1:length(sim2)+1:length(sim2)*length(sim2))=0;
@@ -113,7 +116,7 @@ sim2=sim2-fix_val;
 sim2=sim2(sim2>0);
 T=mean(mean(sim2))+fix_val;
 if isnan(T)
-    T=0;
+    T=1;
 end
 end
 
