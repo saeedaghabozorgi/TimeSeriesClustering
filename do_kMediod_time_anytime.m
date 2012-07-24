@@ -20,7 +20,8 @@ end
 nor_traj=represent_TS(nor_traj_raw,options.rep,varargin{:});
 itr=1;
 Dist=Mtx_Distance(nor_traj,nor_traj,'same','Org','dis_method','DTW','dtw_bound',0.1,'alphabet_size',0,'compression_ratio',0);
-for i=1:length(Dist)-1
+start=length(Dist)-1;
+for i=start:-1:1
     for j=i+1:length(Dist)
         Dist(i,j)=dis_dtw3(nor_traj{i},nor_traj{j},length(nor_traj{i}));
         Dist(j,i)=Dist(i,j);
@@ -39,8 +40,5 @@ for i=1:length(Dist)-1
     [SSEP,SSEC,RI,ARI,purity,BCubed,ConEntropy,f_measure,jacard,FM,NMI,quality]= do_Evaluate(p,ccc,nor_traj,[],[]);
     disp(['  --> i:', num2str(i), ' | ','incremental quality:',num2str(quality)]);
 end
-
-
-
 
 end
