@@ -48,7 +48,7 @@ end
 
 while 1,
     itr=itr+1;
-    dis=Mtx_Distance(nor_traj,center,'cell_not_same',varargin{:});
+    dis=Mtx_Distance(nor_traj,center,'cell_not_same','Norm',varargin{:});
     [z,c]=min(dis,[],2);  % find group matrix g
     if (c==temp | itr==20),
         break;          % stop the iteration
@@ -117,7 +117,7 @@ else
             w(i,j)=weight(i)+weight(j);
         end
     end
-    dis=Mtx_Distance(SAX_nor_traj(t),SAX_nor_traj(t),'same',varargin{:});
+    dis=Mtx_Distance(SAX_nor_traj(t),SAX_nor_traj(t),'same','Norm',varargin{:});
     dis=dis./w;
     [s,m]=min(sum(dis));
     mmean=SAX_nor_traj{t(m)};
@@ -137,7 +137,7 @@ elseif length(t)<3
 else
     
     %find distance of objects in cluster
-    dis=Mtx_Distance(nor_traj(t),nor_traj(t),'same',varargin{:});
+    dis=Mtx_Distance(nor_traj(t),nor_traj(t),'same','Norm',varargin{:});
     
     %find the SSE
     dis=dis.^2;

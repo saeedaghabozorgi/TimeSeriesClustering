@@ -1,4 +1,4 @@
-function [c error_rate N_reduction_2lev]=clustering_l2_purify(c,p,nor_traj,varargin)
+function [c error_rate N_reduction_2lev ]=clustering_l2_purify(c,p,nor_traj,varargin)
 plot_show=0;
 options = struct('l2_dis_method','SAXminDis','l2_dtw_bound',1,'l2_rep','SAX','l2_alphabet_size',8,'l2_compression_ratio',8);
 optionNames = fieldnames(options);
@@ -26,7 +26,7 @@ for i=1:clusterCount
     if length(newData)<5
         temp_c=ones(length(newData),1);
     else
-        temp_c= do_CAST_time (nor_traj(newData),-1,'dis_method',options.l2_dis_method,'rep',options.l2_rep,'alphabet_size',options.l2_alphabet_size,'compression_ratio',options.l2_compression_ratio,'dtw_bound',options.l2_dtw_bound);
+        [temp_c]= do_CAST_time (nor_traj(newData),-1,'dis_method',options.l2_dis_method,'rep',options.l2_rep,'alphabet_size',options.l2_alphabet_size,'compression_ratio',options.l2_compression_ratio,'dtw_bound',options.l2_dtw_bound);
     end
     c(newData,2)=temp_c;
     disp(['  --> cluster:',num2str(i),'  Mems:',num2str(length(newData)),'  Clus:',num2str(max(temp_c))]);
@@ -58,4 +58,6 @@ end;
      error_rate=Calculate_error_rate(c(:,4),p);
      c=c(:,4);
 disp(['  --> Number of clusters:',num2str(l2_clusterCount),' | ','error_rate:', num2str(error_rate),' | ', 'reduction:', num2str(N_reduction_2lev)]);
+
+
 end

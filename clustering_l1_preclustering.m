@@ -17,7 +17,7 @@ for pair = reshape(varargin,2,[]) %# pair is {propName;propValue}
     end
 end
 %% ----------Level 1----------------------------------------------
-k1=round(length(nor_traj)/50);
+k1=round(length(nor_traj)/30);
 if k1<k
     k1=k;
 end

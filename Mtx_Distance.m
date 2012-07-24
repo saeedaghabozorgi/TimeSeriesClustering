@@ -1,4 +1,4 @@
-function dismatrix=Mtx_Distance(x,y,cond,varargin)
+function dismatrix=Mtx_Distance(x,y,cond,cond2,varargin)
 
 
 options = struct('dis_method','Euclid','dtw_bound',0,'alphabet_size',0,'compression_ratio',0);
@@ -12,9 +12,9 @@ for pair = reshape(varargin,2,[]) %# pair is {propName;propValue}
     inpName = lower(pair{1}); %# make case insensitive
     if any(strmatch(inpName,optionNames))
         options.(inpName) = pair{2};
-%    else
-%         error('%s is not a recognized parameter name',inpName)
-     end
+        %    else
+        %         error('%s is not a recognized parameter name',inpName)
+    end
 end
 
 
@@ -32,7 +32,7 @@ if strcmp(cond,'same')
                         dis=dis_euclidean(a,b);
                     case 'DTW'
                         dis=dis_dtw3(a,b,fix(length(a)*options.dtw_bound));
-                      %  [dis,~,~,~]=dis_dtw_complete(a,b);
+                        %  [dis,~,~,~]=dis_dtw_complete(a,b);
                         
                     case 'LCSS'
                         dis=dis_lcs(a, b, 3, .3);
@@ -65,7 +65,7 @@ else
                     dis=dis_euclidean(a,b);
                 case 'DTW'
                     dis=dis_dtw3(a,b,fix(length(a)*options.dtw_bound));
-                  %  [dis,~,~,~]=dis_dtw_complete(a,b);
+                    %  [dis,~,~,~]=dis_dtw_complete(a,b);
                 case 'LCSS'
                     dis=dis_lcs(a, b, 3, .3);
                 case 'SAXminDis'
@@ -80,14 +80,16 @@ else
             dismatrix(i, j) =dis;
             
             %t(j)=toc;
-
+            
         end
     end
 end
-Nor = dismatrix - min( dismatrix(:) );
-if max( Nor(:) ) ~= 0
-dismatrix = Nor / max( Nor(:) );
-else
-    dismatrix=Nor;
+if strcmp(cond2,'Norm')
+    Nor = dismatrix - min( dismatrix(:) );
+    if max( Nor(:) ) ~= 0
+        dismatrix = Nor / max( Nor(:) );
+    else
+        dismatrix=Nor;
+    end
 end
 end

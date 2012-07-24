@@ -51,7 +51,7 @@ end
 
 while 1,
     itr=itr+1;
-    dis=Mtx_Distance(nor_traj,center,'cell_not_same',varargin{:});
+    dis=Mtx_Distance(nor_traj,center,'cell_not_same','Norm',varargin{:});
     [z,c]=min(dis,[],2);  % find group matrix g
     if (c==temp | itr==10),
         break;          % stop the iteration

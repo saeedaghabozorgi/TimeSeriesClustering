@@ -18,8 +18,8 @@ while itr<8
     c1=c3;
     itr=itr+1;
 end
-%parameter3={'l3_dis_method','DTW','l3_dtw_bound',.9,'l3_rep','RAW','l3_alphabet_size',8,'l3_compression_ratio',9-itr,'l3_alg','k-medoid'};
-c=clustering_l3_merge(c2,p,k,center,nor_traj,weight,parameter3{:});
+parameter4={'l3_dis_method','DTW','l3_dtw_bound',.9,'l3_rep','RAW','l3_alphabet_size',8,'l3_compression_ratio',9-itr,'l3_alg','k-medoid'};
+c=clustering_l3_merge(c2,p,k,center,nor_traj,weight,parameter4{:});
 [SSEP,SSEC,RI,ARI,purity,BCubed,ConEntropy,f_measure,jacard,FM,NMI,quality]= do_Evaluate(p,c,nor_traj,[],[]);
 details(itr,:)=[SSEP,SSEC,RI,ARI,purity,BCubed,ConEntropy,f_measure,jacard,FM,NMI,quality,error_rate_2lev];
 end

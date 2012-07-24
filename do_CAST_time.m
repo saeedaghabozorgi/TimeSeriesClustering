@@ -27,7 +27,7 @@ obj=nor_traj;
 U=[1:length(obj)]';
 C_open=[];
 if isempty(options.dis)
-    dis=Mtx_Distance(nor_traj,nor_traj,'same',varargin{:});
+    dis=Mtx_Distance(nor_traj,nor_traj,'same','Norm',varargin{:});
 else
     dis=options.dis;
 end
@@ -35,9 +35,17 @@ sim=1-dis;
 sim(1:length(sim)+1:length(sim)*length(sim))=0;
 Cluster_num=1;
 C=zeros(length(obj),1);
+% only for print
+Affin=sum(sim,2)./(size(sim,1)-1);
+fix_val =  mean(Affin);
+disp(['       --> FIX_VAL:',num2str(fix_val),' | ',' obj:',num2str(length(obj))]);
+ theroshold6=calculateT1(U,sim);
+%------------
 while (~isempty(U))
-    if theroshold==-5
-        fix_t=calculateT4(U,sim);
+    if theroshold==-6
+        fix_t=theroshold6;
+    elseif theroshold==-5
+        fix_t=calculateT5([1:1:length(sim)]',sim);
     elseif theroshold==-4
         fix_t=calculateT4([1:1:length(sim)]',sim);
     elseif theroshold==-3
@@ -49,6 +57,7 @@ while (~isempty(U))
     else
         fix_t=theroshold;
     end
+    disp(['       --> T:',num2str(fix_t),' | ',' U:',num2str(length(U))]);
     C_open=[];
     old_c=[];
     [~,inx]=MaxMat(sim,U);
@@ -104,11 +113,7 @@ end
 function T=calculateT1(U,sim) % ECAST
 %fix_val=0.5;
 Affin=sum(sim,2)./(size(sim,1)-1);
-mu = mean(Affin);
-%sigma = std(Affin)
-%outliers = abs(Affin - mu) > sigma;
-%out=length(find(outliers==1))
-fix_val = mu;
+fix_val =  mean(Affin);
 sim2=sim(U,U);
 sim2(1:length(sim2)+1:length(sim2)*length(sim2))=0;
 sim2= squareform(sim2);

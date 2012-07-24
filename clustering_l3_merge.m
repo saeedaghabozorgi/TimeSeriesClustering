@@ -29,7 +29,8 @@ if l2_clusterCount>k
     elseif strmatch(options.l3_alg,'k-means')
         [c3,itr]= do_kMeans_time (center,k,'DTW',0,'RAW','dtw_bound',1);
     else
-        [c3,~]= do_kMediod_time (center,k,0,'weight',weight, 'dis_method',options.l3_dis_method,'rep',options.l3_rep,'alphabet_size',options.l3_alphabet_size,'compression_ratio',options.l3_compression_ratio,'dtw_bound',options.l3_dtw_bound);
+       %  [c3,~]= do_kMediod_time (center,k,0,'weight',weight, 'dis_method',options.l3_dis_method,'rep',options.l3_rep,'alphabet_size',options.l3_alphabet_size,'compression_ratio',options.l3_compression_ratio,'dtw_bound',options.l3_dtw_bound);
+       [c3,~]= do_kMediod_time_anytime (center,k,0,c,p,'weight',weight, 'dis_method',options.l3_dis_method,'rep',options.l3_rep,'alphabet_size',options.l3_alphabet_size,'compression_ratio',options.l3_compression_ratio,'dtw_bound',options.l3_dtw_bound);
     end
     for j=1:k
         l3_mems=find(c3==j);
