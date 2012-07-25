@@ -1,6 +1,6 @@
 function clustering_ds_CBF
 detl=[];
-for dataset_no=2:2
+for dataset_no=1:1
     plot_show=1;
     train_data = CBF_Generator(10*dataset_no);
     TRAIN_class_labels = train_data(:,1);     % Pull out the class labels.

@@ -27,7 +27,12 @@ obj=nor_traj;
 U=[1:length(obj)]';
 C_open=[];
 if isempty(options.dis)
+<<<<<<< .mine
     dis=Mtx_Distance(nor_traj,nor_traj,'same','Norm',varargin{:});
+    dis2=Mtx_Distance(nor_traj,nor_traj,'same','Org',varargin{:});
+=======
+    dis=Mtx_Distance(nor_traj,nor_traj,'same','Norm',varargin{:});
+>>>>>>> .r29
 else
     dis=options.dis;
 end
@@ -35,12 +40,21 @@ sim=1-dis;
 sim(1:length(sim)+1:length(sim)*length(sim))=0;
 Cluster_num=1;
 C=zeros(length(obj),1);
+<<<<<<< .mine
+% only for print
+Affin=sum(sim,2)./(size(sim,1)-1);
+fix_val =  mean(Affin);
+%disp(['       --> FIX_VAL:',num2str(fix_val),' | ',' obj:',num2str(length(obj))]);
+ theroshold6=calculateT1(U,sim);
+%------------
+=======
 % only for print
 Affin=sum(sim,2)./(size(sim,1)-1);
 fix_val =  mean(Affin);
 disp(['       --> FIX_VAL:',num2str(fix_val),' | ',' obj:',num2str(length(obj))]);
  theroshold6=calculateT1(U,sim);
 %------------
+>>>>>>> .r29
 while (~isempty(U))
     if theroshold==-6
         fix_t=theroshold6;
@@ -57,7 +71,11 @@ while (~isempty(U))
     else
         fix_t=theroshold;
     end
+<<<<<<< .mine
+  %  disp(['       --> T:',num2str(fix_t),' | ',' U:',num2str(length(U))]);
+=======
     disp(['       --> T:',num2str(fix_t),' | ',' U:',num2str(length(U))]);
+>>>>>>> .r29
     C_open=[];
     old_c=[];
     [~,inx]=MaxMat(sim,U);

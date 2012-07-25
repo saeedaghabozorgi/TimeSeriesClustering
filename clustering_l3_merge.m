@@ -24,13 +24,21 @@ disp(['  ','DS',':',num2str(length(center)),' | ','K',':',num2str(k),' | ','dis_
 disp(['  clustering:',num2str(options.l3_alg)]);
 l2_clusterCount=max(c);
 if l2_clusterCount>k
-    if strmatch(options.l3_alg,'Hier_avg')
+    if strmatch(options.l3_alg,'hier_avg')
         [c3,Z]=do_Hierarchical_time(center,k,'average',-1,'dis_method',options.l3_dis_method,'rep',options.l3_rep,'alphabet_size',options.l3_alphabet_size,'compression_ratio',options.l3_compression_ratio,'dtw_bound',options.l3_dtw_bound);
     elseif strmatch(options.l3_alg,'k-means')
         [c3,itr]= do_kMeans_time (center,k,'DTW',0,'RAW','dtw_bound',1);
+    elseif strmatch(options.l3_alg,'wk-medoids')
+        [c3,~]= do_kMediod_time (center,k,0,'weight',weight, 'dis_method',options.l3_dis_method,'rep',options.l3_rep,'alphabet_size',options.l3_alphabet_size,'compression_ratio',options.l3_compression_ratio,'dtw_bound',options.l3_dtw_bound);
+    elseif strmatch(options.l3_alg,'k-medoids')
+        [c3,~]= do_kMediod_time (center,k,0,'dis_method',options.l3_dis_method,'rep',options.l3_rep,'alphabet_size',options.l3_alphabet_size,'compression_ratio',options.l3_compression_ratio,'dtw_bound',options.l3_dtw_bound);
+    elseif strmatch(options.l3_alg,'k-medoids-keogh')
+        nor_traj=represent_TS(center,options.l3_rep,'alphabet_size',options.l3_alphabet_size,'compression_ratio',options.l3_compression_ratio,'dtw_bound',options.l3_dtw_bound);
+        Dist=Mtx_Distance(nor_traj,nor_traj,'same','Norm', 'dis_method',options.l3_dis_method,'rep',options.l3_rep,'alphabet_size',options.l3_alphabet_size,'compression_ratio',options.l3_compression_ratio,'dtw_bound',options.l3_dtw_bound);
+        Dist=squareform(Dist);
+        [c3,~]= do_kMedoids_keogh(k,Dist); 
     else
-       %  [c3,~]= do_kMediod_time (center,k,0,'weight',weight, 'dis_method',options.l3_dis_method,'rep',options.l3_rep,'alphabet_size',options.l3_alphabet_size,'compression_ratio',options.l3_compression_ratio,'dtw_bound',options.l3_dtw_bound);
-       [c3,~]= do_kMediod_time_anytime (center,k,0,c,p,'weight',weight, 'dis_method',options.l3_dis_method,'rep',options.l3_rep,'alphabet_size',options.l3_alphabet_size,'compression_ratio',options.l3_compression_ratio,'dtw_bound',options.l3_dtw_bound);
+        [c3,~]= do_kMediod_time_anytime (center,k,0,c,p,'weight',weight,'dis_method',options.l3_dis_method,'rep',options.l3_rep,'alphabet_size',options.l3_alphabet_size,'compression_ratio',options.l3_compression_ratio,'dtw_bound',options.l3_dtw_bound);
     end
     for j=1:k
         l3_mems=find(c3==j);
@@ -60,9 +68,9 @@ c=c(:,2);
 %     clus_center{i}=centre_mean(c(:,5),i,nor_traj);
 % end
 [SSEP,SSEC,RI,ARI,purity,BCubed,ConEntropy,f_measure,jacard,FM,NMI,quality]= do_Evaluate(p,c,nor_traj,[],[]);
-if plot_show 
-    Plot_time_series_luminate(0,0,c3,pp,[],center,[],k,2,0.5,3); 
-    Plot_time_series_luminate(0,0,c,p,[],nor_traj,[],k,0,0.5,4); 
+if plot_show
+    Plot_time_series_luminate(0,0,c3,pp,[],center,[],k,2,0.5,3);
+    Plot_time_series_luminate(0,0,c,p,[],nor_traj,[],k,0,0.5,4);
     
 end;
 details=[SSEP,SSEC,RI,ARI,purity,BCubed,ConEntropy,f_measure,jacard,FM,NMI,quality];

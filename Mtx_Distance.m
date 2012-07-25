@@ -40,7 +40,7 @@ if strcmp(cond,'same')
                         dis=dis_min_dist(a, b, options.alphabet_size,options.compression_ratio);
                     case 'SAXmaxDis'
                         dis=dis_max_dist(a, b, options.alphabet_size,options.compression_ratio);
-                    case 'SAXAPX'
+                    case 'SAXDIST'
                         dis=dis_SAX_apx(a, b, options.alphabet_size,options.compression_ratio);
                     otherwise
                         error(sprintf('DOCLUSTERING - unsupported algorithm "%s"',dis_method))
@@ -72,7 +72,7 @@ else
                     dis=dis_min_dist(a, b, options.alphabet_size,options.compression_ratio);
                 case 'SAXmaxDis'
                     dis=dis_max_dist(a, b, options.alphabet_size,options.compression_ratio);
-                case 'SAXAPX'
+                case 'SAXDIST'
                     dis=dis_SAX_apx(a, b, options.alphabet_size,options.compression_ratio);
                 otherwise
                     error(sprintf('DOCLUSTERING - unsupported algorithm "%s"',dis_method))

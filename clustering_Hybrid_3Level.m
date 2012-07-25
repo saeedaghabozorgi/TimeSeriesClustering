@@ -19,16 +19,16 @@ end
 
 
   %% ------------ Level 1-- k-mode --------
-    parameter1={'l1_dis_method','Euclid','l1_dtw_bound',0.9,'l1_rep','RAW','l1_alphabet_size',8,'l1_compression_ratio',6};
+    parameter1={'l1_dis_method','DTW','l1_dtw_bound',0.5,'l1_rep','RAW','l1_alphabet_size',8,'l1_compression_ratio',2};
     c=clustering_l1_preclustering(k,p,nor_traj,parameter1{:});
 
     %% -------------Level 2--CAST--------------------------------------------
     parameter2={'l2_dis_method','DTW','l2_dtw_bound',1,'l2_rep','RAW','l2_alphabet_size',8,'l2_compression_ratio',2};
     [c ,error_rate,N_reduction_2lev]=clustering_l2_purify(c,p,nor_traj,parameter2{:});
     [center weight]=clustering_l2_making_prototype(c,nor_traj,parameter2{:});
-    
+    details=[error_rate,N_reduction_2lev];
     %% --------------Level 3-------------------------------------------------
-    parameter3={'l3_dis_method','DTW','l3_dtw_bound',1,'l3_rep','RAW','l3_alphabet_size',8,'l3_compression_ratio',2,'l3_alg','k-medoid'};
+    parameter3={'l3_dis_method','DTW','l3_dtw_bound',1,'l3_rep','RAW','l3_alphabet_size',8,'l3_compression_ratio',2,'l3_alg','k-medoids'};
     [c ,details]=clustering_l3_merge(c,p,k,center,nor_traj,weight,parameter3{:});
 
 end

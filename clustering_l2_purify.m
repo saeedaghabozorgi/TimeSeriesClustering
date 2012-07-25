@@ -51,12 +51,12 @@ l2_clusterCount=max(c(:,4));
 if plot_show
     Plot_time_series_luminate(0,0,c(:,4),p,[],nor_traj,[],l2_clusterCount,2,0.5,2);
 end;
-    % [SSEP,SSEC,RS,purity,BCubed,ConEntropy,fm]= do_Evaluate(p,cc,nor_traj,class_center,center);
-         %   purity2=Calculate_Cluster_Purity(c(:,4),p,1);
-%     qual_2lev=Calculate_Cluster_correct_ratio(c(:,4),p);
-     N_reduction_2lev=1-l2_clusterCount/length(nor_traj);
-     error_rate=Calculate_error_rate(c(:,4),p);
-     c=c(:,4);
+% [SSEP,SSEC,RS,purity,BCubed,ConEntropy,fm]= do_Evaluate(p,cc,nor_traj,class_center,center);
+%  purity2=Calculate_Cluster_Purity(c(:,4),p,1);
+% qual_2lev=Calculate_Cluster_correct_ratio(c(:,4),p);
+N_reduction_2lev=1-l2_clusterCount/length(nor_traj);
+error_rate=Calculate_error_rate(c(:,4),p);
+c=c(:,4);
 disp(['  --> Number of clusters:',num2str(l2_clusterCount),' | ','error_rate:', num2str(error_rate),' | ', 'reduction:', num2str(N_reduction_2lev)]);
 
 
