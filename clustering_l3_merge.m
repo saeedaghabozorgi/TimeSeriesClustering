@@ -1,6 +1,6 @@
-function [c details]=clustering_l3_merge(c,p,k,center,nor_traj,weight,varargin)
+function [c details]=clustering_l3_merge(c,p,k,center,nor_traj,weight,D,A,varargin)
 plot_show=0;
-options = struct('l3_dis_method','SAXminDis','l3_dtw_bound',1,'l3_rep','SAX','l3_alphabet_size',8,'l3_compression_ratio',8,'l3_alg','k-medoid');
+options = struct('l3_dis_method','-','l3_dtw_bound',-1,'l3_rep','-','l3_alphabet_size',0,'l3_compression_ratio',0,'l3_alg','-');
 optionNames = fieldnames(options);
 nArgs = length(varargin);
 if round(nArgs/2)~=nArgs/2
@@ -37,8 +37,10 @@ if l2_clusterCount>k
         Dist=Mtx_Distance(nor_traj,nor_traj,'same','Norm', 'dis_method',options.l3_dis_method,'rep',options.l3_rep,'alphabet_size',options.l3_alphabet_size,'compression_ratio',options.l3_compression_ratio,'dtw_bound',options.l3_dtw_bound);
         Dist=squareform(Dist);
         [c3,~]= do_kMedoids_keogh(k,Dist); 
-    else
+    elseif strmatch(options.l3_alg,'k-medoids-keogh-anytime')
         [c3,~]= do_kMediod_time_anytime (center,k,0,c,p,'weight',weight,'dis_method',options.l3_dis_method,'rep',options.l3_rep,'alphabet_size',options.l3_alphabet_size,'compression_ratio',options.l3_compression_ratio,'dtw_bound',options.l3_dtw_bound);
+    else
+        disp(['  --> Err: please determine the name of algorithm.']);
     end
     for j=1:k
         l3_mems=find(c3==j);
@@ -50,29 +52,15 @@ if l2_clusterCount>k
 else
     c(:,2)=c(:,1);
 end
+c_center=c(:,1);
 c=c(:,2);
 
-
 %--evaluation-------------------------------------------------------------
-%if plot_show h=dendrogram(Z);end;
-% Plot_time_series(0,0,c(:,5),p,[],nor_traj,t_traj,k,3,2);
-%--------------------
-%-- to show the centers
-% for j=1:length(center)
-%     sub_members=find(c(:,4)==j);
-%     xx=p(sub_members);
-%     pp(j,1)=mode(xx); %  to find more frequent in this cluster
-% end
-% clus_center={};
-% for i=1:k
-%     clus_center{i}=centre_mean(c(:,5),i,nor_traj);
-% end
-[SSEP,SSEC,RI,ARI,purity,BCubed,ConEntropy,f_measure,jacard,FM,NMI,quality]= do_Evaluate(p,c,nor_traj,[],[]);
 if plot_show
-    Plot_time_series_luminate(0,0,c3,pp,[],center,[],k,2,0.5,3);
-    Plot_time_series_luminate(0,0,c,p,[],nor_traj,[],k,0,0.5,4);
-    
+    Plot_time_series_luminate(0,0,c3,p,[],center,[],k,0,0.5,4);
+    Plot_time_series_luminate(0,0,c,p,[],nor_traj,[],k,0,0.5,5);
 end;
+[SSEP,SSEC,RI,ARI,purity,BCubed,ConEntropy,f_measure,jacard,FM,NMI,quality]= do_Evaluate(p,c,nor_traj,[],[]);
 details=[SSEP,SSEC,RI,ARI,purity,BCubed,ConEntropy,f_measure,jacard,FM,NMI,quality];
 disp(['  --> quality:',num2str(quality)]);
 end

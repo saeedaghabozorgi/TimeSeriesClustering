@@ -1,7 +1,7 @@
 function dismatrix=Mtx_Distance(x,y,cond,cond2,varargin)
 
 
-options = struct('dis_method','Euclid','dtw_bound',0,'alphabet_size',0,'compression_ratio',0);
+options = struct('dis_method','-','dtw_bound',0,'alphabet_size',0,'compression_ratio',0);
 optionNames = fieldnames(options);
 nArgs = length(varargin);
 if round(nArgs/2)~=nArgs/2
@@ -31,9 +31,12 @@ if strcmp(cond,'same')
                     case 'Euclid'
                         dis=dis_euclidean(a,b);
                     case 'DTW'
-                        dis=dis_dtw3(a,b,fix(length(a)*options.dtw_bound));
-                        %  [dis,~,~,~]=dis_dtw_complete(a,b);
-                        
+                        dis=dis_dtw3(a,b,fix(size(a,2)*options.dtw_bound));
+                        %                          dis=dis_dtw3(a,b,1);
+                        %                          [dis,~,~,~]=dis_dtw_complete(a,b);
+                        %                         [dtw_Dist,D,dtw_k,w,s1w,s2w]=dis_dtw4(a,b,1);
+                    case 'LB_Keogh'
+                        dis=dis_lb_keogh(a,b,fix(size(a,2)*options.dtw_bound));
                     case 'LCSS'
                         dis=dis_lcs(a, b, 3, .3);
                     case 'SAXminDis'
@@ -64,8 +67,10 @@ else
                 case 'Euclid'
                     dis=dis_euclidean(a,b);
                 case 'DTW'
-                    dis=dis_dtw3(a,b,fix(length(a)*options.dtw_bound));
+                    dis=dis_dtw3(a,b,fix(size(a,2)*options.dtw_bound));
                     %  [dis,~,~,~]=dis_dtw_complete(a,b);
+                                    case 'LB_Keogh'
+                        dis=dis_lb_keogh(a,b,fix(size(a,2)*options.dtw_bound));
                 case 'LCSS'
                     dis=dis_lcs(a, b, 3, .3);
                 case 'SAXminDis'

@@ -48,18 +48,18 @@ end;
 
 function dist_table = build_dist_table(alphabet_size)
 
-switch alphabet_size
-    case 2, cutlines  = [0];
-    case 3, cutlines  = [-0.43 0.43];
-    case 4, cutlines  = [-0.67 0 0.67];
-    case 5, cutlines  = [-0.84 -0.25 0.25 0.84];
-    case 6, cutlines  = [-0.97 -0.43 0 0.43 0.97];
-    case 7, cutlines  = [-1.07 -0.57 -0.18 0.18 0.57 1.07];
-    case 8, cutlines  = [-1.15 -0.67 -0.32 0 0.32 0.67 1.15];
-    case 9, cutlines  = [-1.22 -0.76 -0.43 -0.14 0.14 0.43 0.76 1.22];
-    case 10, cutlines = [-1.28 -0.84 -0.52 -0.25 0. 0.25 0.52 0.84 1.28];
-    otherwise, disp('WARNING:: Alphabet size too big');
-end;
+% switch alphabet_size
+%     case 2, cutlines  = [0];
+%     case 3, cutlines  = [-0.43 0.43];
+%     case 4, cutlines  = [-0.67 0 0.67];
+%     case 5, cutlines  = [-0.84 -0.25 0.25 0.84];
+%     case 6, cutlines  = [-0.97 -0.43 0 0.43 0.97];
+%     case 7, cutlines  = [-1.07 -0.57 -0.18 0.18 0.57 1.07];
+%     case 8, cutlines  = [-1.15 -0.67 -0.32 0 0.32 0.67 1.15];
+%     case 9, cutlines  = [-1.22 -0.76 -0.43 -0.14 0.14 0.43 0.76 1.22];
+%     case 10, cutlines = [-1.28 -0.84 -0.52 -0.25 0. 0.25 0.52 0.84 1.28];
+%     otherwise, disp('WARNING:: Alphabet size too big');
+% end;
 switch alphabet_size
     case 1, meanline  = [0];
     case 2, meanline  = [-0.43 0.43];

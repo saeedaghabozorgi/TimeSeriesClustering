@@ -20,17 +20,16 @@ function TS=CBF(shape,N)
 
 a= randi([16,32],N,1);
 b= randi([32,96],N,1)+ a;
-n=rand(N,1);
 
 for j=1:N
     for t=1:128
         x=xab(a(j,1),b(j,1),t);
         if strmatch(shape,'CYLINDER')
-            TS(j,t)=(6+rand)*x+rand;
+            TS(j,t)=(6+rand*2)*x+rand*2;
         elseif strmatch(shape,'BELL')
-            TS(j,t)=(6+rand)*x*(t - a(j,1)) ./ (b(j,1) - a(j,1))+rand;
+            TS(j,t)=(6+rand*2)*x*(t - a(j,1)) ./ (b(j,1) - a(j,1))+rand*2;
         elseif strmatch(shape,'FUNNEL')
-            TS(j,t)=(6+rand)*x*(b(j,1) - t) ./ (b(j,1) - a(j,1))+rand;
+            TS(j,t)=(6+rand*2)*x*(b(j,1) - t) ./ (b(j,1) - a(j,1))+rand*2;
         end
     end
 end

@@ -1,35 +1,36 @@
 function [details]=clustering_Hybrid_3Level(nor_traj, k,p,varargin)
 plot_show=0;
-options = struct('l1_dis_method','SAXminDis','l1_dtw_bound',1,'l1_rep','SAX','l1_alphabet_size',8,'l1_compression_ratio',8,'l2_dis_method','SAXminDis','l2_dtw_bound',1,'l2_rep','SAX','l2_alphabet_size',8,'l2_compression_ratio',8,'l3_dis_method','SAXminDis','l3_dtw_bound',1,'l3_rep','SAX','l3_alphabet_size',8,'l3_compression_ratio',8,'l3_alg','k-medoid');
-optionNames = fieldnames(options);
-nArgs = length(varargin);
-if round(nArgs/2)~=nArgs/2
-    error('EXAMPLE needs propertyName/propertyValue pairs')
-end
-
-for pair = reshape(varargin,2,[]) %# pair is {propName;propValue}
-    inpName = lower(pair{1}); %# make case insensitive
-    if any(strmatch(inpName,optionNames))
-        options.(inpName) = pair{2};
-        %disp([num2str(inpName),' : ',num2str(options.(inpName))]);
-        %    else
-        %       error('%s is not a recognized parameter name',inpName)
-    end
-end
+% options = struct('l1_dis_method','SAXminDis','l1_dtw_bound',1,'l1_rep','SAX','l1_alphabet_size',8,'l1_compression_ratio',8,'l2_dis_method','SAXminDis','l2_dtw_bound',1,'l2_rep','SAX','l2_alphabet_size',8,'l2_compression_ratio',8,'l3_dis_method','SAXminDis','l3_dtw_bound',1,'l3_rep','SAX','l3_alphabet_size',8,'l3_compression_ratio',8,'l3_alg','k-medoid');
+% optionNames = fieldnames(options);
+% nArgs = length(varargin);
+% if round(nArgs/2)~=nArgs/2
+%     error('EXAMPLE needs propertyName/propertyValue pairs')
+% end
+% 
+% for pair = reshape(varargin,2,[]) %# pair is {propName;propValue}
+%     inpName = lower(pair{1}); %# make case insensitive
+%     if any(strmatch(inpName,optionNames))
+%         options.(inpName) = pair{2};
+%         %disp([num2str(inpName),' : ',num2str(options.(inpName))]);
+%         %    else
+%         %       error('%s is not a recognized parameter name',inpName)
+%     end
+% end
 
 
   %% ------------ Level 1-- k-mode --------
-    parameter1={'l1_dis_method','DTW','l1_dtw_bound',0.5,'l1_rep','RAW','l1_alphabet_size',8,'l1_compression_ratio',2};
-    c=clustering_l1_preclustering(k,p,nor_traj,parameter1{:});
-
+    parameter1={'l1_dis_method','DTW','l1_dtw_bound',1,'l1_rep','RAW','l1_alphabet_size',8,'l1_compression_ratio',6,'l1_alg','k-medoids-keogh'};
+    [c ,D]=clustering_l1_preclustering(k,p,nor_traj,parameter1{:});
+c1=c;
     %% -------------Level 2--CAST--------------------------------------------
     parameter2={'l2_dis_method','DTW','l2_dtw_bound',1,'l2_rep','RAW','l2_alphabet_size',8,'l2_compression_ratio',2};
-    [c ,error_rate,N_reduction_2lev]=clustering_l2_purify(c,p,nor_traj,parameter2{:});
-    [center weight]=clustering_l2_making_prototype(c,nor_traj,parameter2{:});
-    details=[error_rate,N_reduction_2lev];
+    [c ,error_rate,N_reduction_2lev,D,A]=clustering_l2_purify(c,p,nor_traj,D,parameter2{:});
+    [center weight]=clustering_l2_making_prototype(c,p,nor_traj,D,parameter2{:});
     %% --------------Level 3-------------------------------------------------
-    parameter3={'l3_dis_method','DTW','l3_dtw_bound',1,'l3_rep','RAW','l3_alphabet_size',8,'l3_compression_ratio',2,'l3_alg','k-medoids'};
-    [c ,details]=clustering_l3_merge(c,p,k,center,nor_traj,weight,parameter3{:});
+     parameter3={'l3_dis_method','DTW','l3_dtw_bound',1,'l3_rep','RAW','l3_alphabet_size',8,'l3_compression_ratio',2,'l3_alg','wk-medoids'};
+    [c ,details]=clustering_l3_merge(c,c1,k,center,nor_traj,weight,D,A,parameter3{:});
+  %  [c,details]=clustering_anytime(D,A,k,p,nor_traj,'k-medoid-keogh');
+ %   Plot_time_series_luminate(0,0,c,p,[],nor_traj,[],k,0,0.5,5);
 
 end
 

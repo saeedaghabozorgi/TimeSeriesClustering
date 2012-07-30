@@ -79,6 +79,6 @@ for n=2:N
     end
 end
 
-Dist=D(N,M);
+Dist=sqrt(D(N,M));
 
 end
