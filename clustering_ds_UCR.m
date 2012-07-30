@@ -33,10 +33,28 @@ end
 
 %%
 fileID = fopen('result.txt','a');
-for dataset_no=1:length(files_name)
+for dataset_no=3:length(files_name)
     disp(['-------------------',files_name(dataset_no)] );
-    details(dataset_no,:)=evaluate_distance( ds{dataset_no});
+ %   details(dataset_no,:)=evaluate_distance( ds{dataset_no});
  %   details(dataset_no,:)=clustering_Hybrid_3Level(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no});
+calculate_DTW_ground_truth(ds{dataset_no},dataset_no);
+    
+end
+fprintf(fileID,'---------------------------------------------------------------------------------------------------------\n');
+fprintf(fileID,'\n');
+fclose(fileID);
+
+end
+
+function calculate_DTW_ground_truth(nor_traj_raw,dataset_no)
+dist=[];
+dist=Mtx_Distance(nor_traj_raw,nor_traj_raw,'same','Org', 'dis_method','DTW','dtw_bound',1,'rep','RAW');
+filename=['result_dis_',num2str(dataset_no),'.mat'];
+save(filename, 'dist')
+% dlmwrite(filename,dist1 ,'-append','delimiter','\t','newline','pc');
+end
+
+function do_others()
 %plot_histogram();
     %     [c,~]= do_kMediod_time (ds{dataset_no},cluster_count(dataset_no),0,'dis_method','Euclid','rep','RAW');
     %     Plot_time_series_luminate(0,0,c,pp{dataset_no},[],ds{dataset_no},[],cluster_count(dataset_no),2,0.5,1);
@@ -49,14 +67,9 @@ for dataset_no=1:length(files_name)
     %          h= dendrogram(Z);
     %       Plot_time_series_luminate(0,0,c, pp{dataset_no},[],ds{dataset_no},[],cluster_count(dataset_no),2,0.5,4);
     %     fprintf(fileID,'dataset_no: %d \n',dataset_no);
-    
 end
-fprintf(fileID,'---------------------------------------------------------------------------------------------------------\n');
-fprintf(fileID,'\n');
-fclose(fileID);
-a=1;
 
-end
+
 function plot_histogram()
     %    Plot_time_series(2,1,pp{dataset_no},pp{dataset_no},[],ds{dataset_no},[],cluster_count(dataset_no),3,0);
     

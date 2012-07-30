@@ -23,6 +23,7 @@ if strcmp(cond,'same')
     data_n = length(x);
     dismatrix=zeros(data_n,data_n);
     for i = 1:data_n
+        disp(num2str(i));
         a=x{i};
         for j = i:data_n,
             if i ~= j
