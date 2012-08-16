@@ -4,9 +4,9 @@ function dismatrix=Mtx_Distance(x,y,cond,cond2,varargin)
 options = struct('dis_method','-','dtw_bound',0,'alphabet_size',0,'compression_ratio',0);
 optionNames = fieldnames(options);
 nArgs = length(varargin);
-if round(nArgs/2)~=nArgs/2
-    error('EXAMPLE needs propertyName/propertyValue pairs')
-end
+%if round(nArgs/2)~=nArgs/2
+%     error('EXAMPLE needs propertyName/propertyValue pairs')
+% end
 
 for pair = reshape(varargin,2,[]) %# pair is {propName;propValue}
     inpName = lower(pair{1}); %# make case insensitive
@@ -23,7 +23,7 @@ if strcmp(cond,'same')
     data_n = length(x);
     dismatrix=zeros(data_n,data_n);
     for i = 1:data_n
-        disp(num2str(i));
+        % disp(num2str(i));
         a=x{i};
         for j = i:data_n,
             if i ~= j
@@ -38,6 +38,8 @@ if strcmp(cond,'same')
                         %                         [dtw_Dist,D,dtw_k,w,s1w,s2w]=dis_dtw4(a,b,1);
                     case 'LB_Keogh'
                         dis=dis_lb_keogh(a,b,fix(size(a,2)*options.dtw_bound));
+                    case 'DTW_ratio'
+                        dis= (dis_euclidean(a,b)+dis_lb_keogh(a,b,fix(size(a,2)*options.dtw_bound)))/2;
                     case 'LCSS'
                         dis=dis_lcs(a, b, 3, .3);
                     case 'SAXminDis'
@@ -70,8 +72,10 @@ else
                 case 'DTW'
                     dis=dis_dtw3(a,b,fix(size(a,2)*options.dtw_bound));
                     %  [dis,~,~,~]=dis_dtw_complete(a,b);
-                                    case 'LB_Keogh'
-                        dis=dis_lb_keogh(a,b,fix(size(a,2)*options.dtw_bound));
+                case 'LB_Keogh'
+                    dis=dis_lb_keogh(a,b,fix(size(a,2)*options.dtw_bound));
+                case 'DTW_ratio'
+                    dis= (dis_euclidean(a,b)+dis_lb_keogh(a,b,fix(size(a,2)*options.dtw_bound)))/2;
                 case 'LCSS'
                     dis=dis_lcs(a, b, 3, .3);
                 case 'SAXminDis'

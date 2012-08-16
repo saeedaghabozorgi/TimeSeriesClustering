@@ -1,9 +1,24 @@
-function clustering_ds_CBF
+function clustering_ds_CC
 detl=[];
 for dataset_no=5:5
-    train_data = ds_Generator_CBF(20*dataset_no);
-    TRAIN_class_labels = train_data(:,1);     % Pull out the class labels.
-    p=train_data(:,1);
+    
+    %read data by generating
+    %  train_data = ds_Generator_CC(10*dataset_no);
+    
+    % label of natural clusters
+    %TRAIN_class_labels = train_data(:,1);     % Pull out the class labels.
+    
+    
+    % read data by loading
+    file_name=('..\dataset CC\ds_CC_300.mat');
+    train_data = importdata(file_name);
+    
+    % label of DTW
+    lable_file_name=['..\dataset CC\ds_CBF_300_kmedoids_DTW_label.mat'];
+    TRAIN_class_labels = importdata(lable_file_name);
+    
+    
+    p=TRAIN_class_labels;
     k=length(unique(TRAIN_class_labels));
     rows=size(train_data,1);
     data_len= size(train_data,2)-1;
@@ -11,19 +26,22 @@ for dataset_no=5:5
     cluster_count(dataset_no)=k;
     pp{dataset_no}=p;
     ds{dataset_no}=nor_traj;
+    
     %%
     %--- to save CBF and matrix data and lables
-    %     ds_CBF_300=train_data(1:300,2:129);
-    %     save('..\dataset CBF\ds_CBF_300.mat','ds_CBF_300');
-    %     paralele_DTW(nor_traj,'..\dataset CBF\prepared_mtx_CBF\dismat_DTW_CBF_300.mat');
-    %     load('..\dataset CBF\prepared_mtx_CBF\dismat_DTW_CBF_300.mat','dismat');
-    %     D=dismat+dismat';
-    %     D=squareform(D);
-    %     [label,~]= do_kMedoids_keogh(k,D);
-    %     save('..\dataset CBF\ds_CBF_300_label.mat', 'label')
+    %         ds_CC_300=train_data(1:300,2:61);
+    %         save('..\dataset CC\ds_CC_300.mat','ds_CC_300');
+    %         paralele_DTW(nor_traj,'..\dataset CC\prepared_mtx_CC\dismat_DTW_CC_300.mat');
+    %         load('..\dataset CC\prepared_mtx_CC\dismat_DTW_CC_300.mat','dismat');
+    %         D=dismat+dismat';
+    %         D=squareform(D);
+    %         [label,~]= do_kMedoids_keogh(k,D);
+    %         save('..\dataset CC\ds_CBF_300_kmedoids_DTW_label.mat', 'label')
     %---------------------------------------
-    
-    %    details(dataset_no,:)=clustering_Hybrid_3Level(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no});
+    load('..\dataset CBF\prepared_mtx_CBF\dismat_DTW_CC_300.mat','dismat');
+    dismat=dismat+dismat';
+    dismat=squareform(dismat);
+    details(dataset_no,:)=clustering_Hybrid_3Level(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no});
     %   details(dataset_no,:)=clustering_Hybrid_3Level_anytime3(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no});
     %     details{dataset_no}=clustering_Hybrid_3Level_anytime(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no});
     %    detl=[detl;details{dataset_no}];

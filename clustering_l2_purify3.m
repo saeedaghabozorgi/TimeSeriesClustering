@@ -1,5 +1,4 @@
-function [c error_rate N_reduction_2lev D A]=clustering_l2_purify(c,p,nor_traj_raw,D,A,plot_show,dist_mtx_DTW,varargin)
-
+function [c error_rate N_reduction_2lev D A]=clustering_l2_purify3(c,p,nor_traj_raw,D,A,plot_show,varargin)
 options = struct('l2_dis_method','SAXminDis','l2_dtw_bound',1,'l2_rep','SAX','l2_alphabet_size',8,'l2_compression_ratio',8);
 optionNames = fieldnames(options);
 nArgs = length(varargin);
@@ -17,84 +16,75 @@ for pair = reshape(varargin,2,[]) %# pair is {propName;propValue}
     end
 end
 %% ----------Level 2--CAST--------------------------------------------
-disp('Stage 2');
+disp('level 2');
 disp(['  ','DS',':',num2str(length(c)),' | ','dis_method',':',options.l2_dis_method,' | ','dtw_bound',':',num2str(options.l2_dtw_bound),' | ','rep',':',options.l2_rep,' | ','alphabet_size',':',num2str(options.l2_alphabet_size),' ','compression_ratio',':',num2str(options.l2_compression_ratio)]);
 clusterCount=max(c);
 %A=zeros(length(nor_traj_raw),length(nor_traj_raw));
 
 for i=1:clusterCount
+    newData=find(c(:,1)==i);
+    dismatrix=D(newData,newData);
+    dis=dismatrix;
+    SSE=sum(dis,2)./(size(dis,1)-1);
+    info(1,i)=  mean(SSE); %pre_avg_dis
+    info(2,i) = std(SSE); %pre_sigma_dis
+    info(3,i)= sum(sum(A(newData,newData)))/((length(newData))^2); %chance A
+
+    Nor = dismatrix - min( dismatrix(:) );
+    if max( Nor(:) ) ~= 0
+        dismatrix = Nor / max( Nor(:) );
+    else
+        dismatrix=Nor;
+    end
+    dis=dismatrix;
+    sim=1-dis;
+    sim(1:length(sim)+1:length(sim)*length(sim))=0;
+    Affin=sum(sim,2)./(size(sim,1)-1);
+    info(4,i)=  mean(Affin); %pre_avg_sim
+    info(5,i) = std(Affin); %pre_sigma_sim
+end
+
+[vel,inx]=max(info(1,:).*info(2,:).*(1-info(3,:)));
+if sum(1-info(3,:))<0.002
+    [vel,inx]=max(info(1,:).*info(2,:));
+end
+
+for i=1:clusterCount
     temp_c=[];
     newData=find(c(:,1)==i);
-    
-    %-------------------
-    % only for print
-    dismatrix=D(newData,newData);
-    Nor = dismatrix - min( dismatrix(:) );
-    if max( Nor(:) ) ~= 0
-        dismatrix = Nor / max( Nor(:) );
-    else
-        dismatrix=Nor;
-    end
-    dis=dismatrix;
-    sim=1-dis;
-    sim(1:length(sim)+1:length(sim)*length(sim))=0;
-    
-    Affin1=sum(sim,2)./(size(sim,1)-1);
-    pre_avg_sim=  mean(Affin1);
-    pre_sigma_sim = std(Affin1);
-%        figure;
-%        dd=squareform(sim);
-%     hist(dd);
-    %--------------
     % representation
     nor_traj=represent_TS(nor_traj_raw,options.l2_rep,varargin{:});
-    %--------------------------
-    % to do: check A to not calculate the distance again
-%     for ii=1:length(newData)-1
-%         for jj=ii+1:length(newData)
-%             if A(newData(ii),newData(jj))==0
-%                 D(newData(ii),newData(jj))=dis_dtw3(nor_traj{newData(ii)},nor_traj{newData(jj)},length(nor_traj{newData(ii)}));
-%                 D(newData(jj),newData(ii))= D(newData(ii),newData(jj));
-%             end
-%         end
-%     end
-%    
+    
     %--------------------------------
-    %dist1=Mtx_Distance(nor_traj(newData),nor_traj(newData),'same','org','dis_method',options.l2_dis_method,'dtw_bound',options.l2_dtw_bound,'alphabet_size',options.l2_alphabet_size,'compression_ratio',options.l2_compression_ratio);
-
-    D(newData,newData)=dist_mtx_DTW(newData,newData);
-    A(newData,newData)=1 ;
-
+   % dist1=Mtx_Distance(nor_traj(newData),nor_traj(newData),'same','org','dis_method',options.l2_dis_method,'dtw_bound',options.l2_dtw_bound,'alphabet_size',options.l2_alphabet_size,'compression_ratio',options.l2_compression_ratio);
+    %D(newData,newData)=dist1;
     
-    %-------------------
-    % only for print
-    dismatrix=D(newData,newData);
-    Nor = dismatrix - min( dismatrix(:) );
-    if max( Nor(:) ) ~= 0
-        dismatrix = Nor / max( Nor(:) );
-    else
-        dismatrix=Nor;
-    end
-    dis=dismatrix;
-    sim=1-dis;
-    sim(1:length(sim)+1:length(sim)*length(sim))=0;
-    Affin2=sum(sim,2)./(size(sim,1)-1);
-    DTW_avg_sim=  mean(Affin2);
-    DTW_sigma_sim = std(Affin2);
-%     figure;
-%       hist(Affin2);
-    %--------------
-    
-    dist1=D(newData,newData);
-    if length(newData)<5
+    if i~=inx
         temp_c=ones(length(newData),1);
         mu=0;
         sigma=0;
     else
-        [temp_c]= do_CAST_time (nor_traj(newData),dist1,-1,'dis_method',options.l2_dis_method,'rep',options.l2_rep,'alphabet_size',options.l2_alphabet_size,'compression_ratio',options.l2_compression_ratio,'dtw_bound',options.l2_dtw_bound);
+        %--------------------------
+      %  -- to check A to not calculate the distance again
+%                 for ii=1:length(newData)-1
+%                     for jj=ii+1:length(newData)
+%                         if A(newData(ii),newData(jj))==0
+%                             D(newData(ii),newData(jj))=dis_dtw3(nor_traj{newData(ii)},nor_traj{newData(jj)},length(nor_traj{newData(ii)}));
+%                             D(newData(jj),newData(ii))= D(newData(ii),newData(jj));
+%                         end
+%                     end
+%                 end
+        %-- to speead up
+        dismat=dismat+dismat';
+        D(newData,newData)=dismat(newData,newData);
+        %----------------------
+        
+        dist1=D(newData,newData);
+        A(newData,newData)=1 ;
+        [temp_c,mu,sigma]= do_CAST_time (nor_traj(newData),dist1,-1,'dis_method',options.l2_dis_method,'rep',options.l2_rep,'alphabet_size',options.l2_alphabet_size,'compression_ratio',options.l2_compression_ratio,'dtw_bound',options.l2_dtw_bound);
     end
     c(newData,2)=temp_c;
-    disp(['  --> Pre-cluster#',num2str(i),'  Mems:',num2str(length(newData)),'  Clus:',num2str(max(temp_c)),' avg_sim_l1:(',num2str(pre_avg_sim),'-',num2str(pre_sigma_sim),')  avg_sim_DTW:',num2str(DTW_avg_sim),'-',num2str(DTW_sigma_sim),')']);
+   % disp(['  --> Pre-cluster#',num2str(i),'  Mems:',num2str(length(newData)),'  Clus:',num2str(max(temp_c)),' avg_sim_l1:(',num2str(info(1,i)),'-',num2str(info(2,i)),')  avg_sim_DTW:',num2str(mu),'-',num2str(sigma),')']);
 end
 %-------
 % to map raw objects to new clusters

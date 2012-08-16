@@ -1,26 +1,36 @@
 function clustering_ds_UCR
-
-fnames = dir('..\data\dataset UCR\All train\*');
-
-for k=3:length(fnames)
-    fname = fnames(k).name;
-    files_name{k-2}=fname;
+foldpath='..\dataset UCR\Raw data sets';
+nameFolds = dir(foldpath);
+for k=3:length(nameFolds)
+    fold_name = nameFolds(k).name;
+    folderes_name{k-2}=fold_name;
+    files_name{k-2}=[fold_name,'_TEST'];
 end
+
 disp('Reading data ..');
 for dataset_no=1:length(files_name)
-    file_name=['..\data\dataset UCR\All train\' files_name{dataset_no}];
+    file_name=[foldpath,'\',folderes_name{dataset_no},'\',files_name{dataset_no}];
     disp([files_name(dataset_no)] );
     train_data = importdata(file_name);
-    TRAIN_class_labels = train_data(:,1);     % Pull out the class labels.
     
-    p=train_data(:,1);
-    if(min(p)==-1)
-        p(p==-1)=max(p)+1;
+     %----labels from data------
+    TRAIN_class_labels = train_data(:,1);     
+    if(min(TRAIN_class_labels)==-1)
+        TRAIN_class_labels(TRAIN_class_labels==-1)=max(TRAIN_class_labels)+1;
     end
-    if(min(p)==0)
-        p(p==0)=max(p)+1;
+    if(min(TRAIN_class_labels)==0)
+        TRAIN_class_labels(TRAIN_class_labels==0)=max(TRAIN_class_labels)+1;
     end
     
+    %----labels from DTW_k-medoids------
+%     label_filename=['..\dataset UCR\prepared_k-medoids_label\ds_UCR_',num2str(dataset_no),'_DTW_label.mat'];
+%     load(label_filename,'label');
+%     TRAIN_class_labels=label;
+
+
+
+    p=TRAIN_class_labels;
+
     k=length(unique(TRAIN_class_labels));
     rows=size(train_data,1);
     data_len= size(train_data,2)-1;
@@ -28,17 +38,30 @@ for dataset_no=1:length(files_name)
     cluster_count(dataset_no)=k;
     pp{dataset_no}=p;
     ds{dataset_no}=nor_traj_raw;
-    %   details(dataset_no,:)=clustering_Hybrid_3Level(nor_traj,k,p);
+    
+    
+%     dist_mtx_DTW_file=['..\dataset UCR\prepared_mtx_UCR\','result_dis_',num2str(dataset_no),'.mat'];
+%     load(dist_mtx_DTW_file,'dist');
+%     dist_mtx_DTW{dataset_no}=dist;
+    
 end
 
 %%
-fileID = fopen('result.txt','a');
-for dataset_no=3:length(files_name)
+%fileID = fopen('result.txt','a');
+for dataset_no=9:length(files_name)
     disp(['-------------------',files_name(dataset_no)] );
- %   details(dataset_no,:)=evaluate_distance( ds{dataset_no});
- %   details(dataset_no,:)=clustering_Hybrid_3Level(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no});
-calculate_DTW_ground_truth(ds{dataset_no},dataset_no);
+    %   details(dataset_no,:)=evaluate_distance( ds{dataset_no});
     
+ %    details(dataset_no,:)=clustering_Hybrid_3Level(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no},dist_mtx_DTW{dataset_no});
+    
+%     [det,hurestic_param]=clustering_Hybrid_3Level_heuristic(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no},dist_mtx_DTW{dataset_no});
+%     details(dataset_no,:)=det;
+%     param{dataset_no}=hurestic_param;
+    
+    calculate_DTW_matrix_paralele(ds{dataset_no},[foldpath,'\',folderes_name{dataset_no},'\',files_name{dataset_no},'_dismat_DTW.mat']);
+    %   calculate_DTW_ground_truth(ds{dataset_no},dataset_no);
+    %details(dataset_no,:)=clustering_Hybrid_3Level_anytime3(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no});
+  %  plot_histogram(dist_mtx_DTW{dataset_no},ds{dataset_no});
 end
 fprintf(fileID,'---------------------------------------------------------------------------------------------------------\n');
 fprintf(fileID,'\n');
@@ -46,7 +69,7 @@ fclose(fileID);
 
 end
 
-function calculate_DTW_ground_truth(nor_traj_raw,dataset_no)
+function calculate_DTW_matrix(nor_traj_raw,dataset_no)
 dist=[];
 dist=Mtx_Distance(nor_traj_raw,nor_traj_raw,'same','Org', 'dis_method','DTW','dtw_bound',1,'rep','RAW');
 filename=['result_dis_',num2str(dataset_no),'.mat'];
@@ -54,31 +77,78 @@ save(filename, 'dist')
 % dlmwrite(filename,dist1 ,'-append','delimiter','\t','newline','pc');
 end
 
+function find_label_k_medoid_DTW(dist_mtx_DTW,k,dataset_no)
+dist_mtx_DTW=squareform(dist_mtx_DTW);
+[label,~]= do_kMedoids_keogh(k,dist_mtx_DTW);
+filename=['..\dataset UCR\prepared_k-medoids_label\ds_UCR_',num2str(dataset_no),'_DTW_label.mat'];
+save(filename, 'label')
+end
+
+function calculate_DTW_matrix_paralele(nor_traj,path)
+matlabpool open 2
+poolSize = matlabpool('size');
+if poolSize == 0
+   error('parallel:demo:poolClosed', ...
+        'This demo needs an open MATLAB pool to run.');
+end
+fprintf('This demo is running on %d MATLABPOOL workers.\n', ...
+    matlabpool('size'));
+
+x=nor_traj;
+data_n = length(x);
+dismat=zeros(data_n,data_n);
+parfor  i = 1:data_n
+    disp(num2str(i));
+    dismat(i,:)=rowcalc(i,data_n,x);
+end
+save(path, 'dismat')
+ matlabpool close
+end
+
+function dismatrix=rowcalc(row,data_n,x)
+dismatrix=zeros(1,data_n);
+    a=x{row};
+    for j = row:data_n,
+        if row ~= j
+            b=x{j};
+            dis=dis_dtw3(a,b,size(a,2));
+            dismatrix(1, j) =dis;
+        end
+    end
+end
+
 function do_others()
 %plot_histogram();
-    %     [c,~]= do_kMediod_time (ds{dataset_no},cluster_count(dataset_no),0,'dis_method','Euclid','rep','RAW');
-    %     Plot_time_series_luminate(0,0,c,pp{dataset_no},[],ds{dataset_no},[],cluster_count(dataset_no),2,0.5,1);
-    
-    %     [c,~]= do_kMediod_time (ds{dataset_no},cluster_count(dataset_no),0,'dis_method','SAXminDis','rep','SAX','alphabet_size',8,'compression_ratio',4);
-    %     [c,Z]=do_Hierarchical_time(ds{dataset_no},cluster_count(dataset_no),'average',-1,'dis_method','SAXminDis','rep','SAX','alphabet_size',8,'compression_ratio',4,'dtw_bound',0.8);
-    
-    %   [SSEP,SSEC,RI,purity,BCubed,ConEntropy,f_measure,jacard,FM,quality]= do_Evaluate(pp{dataset_no},c,ds{dataset_no},[],[]);
-    %          details(dataset_no,:)=[SSEP,SSEC,RI,purity,BCubed,ConEntropy,f_measure,jacard,FM,quality];
-    %          h= dendrogram(Z);
-    %       Plot_time_series_luminate(0,0,c, pp{dataset_no},[],ds{dataset_no},[],cluster_count(dataset_no),2,0.5,4);
-    %     fprintf(fileID,'dataset_no: %d \n',dataset_no);
+%     [c,~]= do_kMediod_time (ds{dataset_no},cluster_count(dataset_no),0,'dis_method','Euclid','rep','RAW');
+%     Plot_time_series_luminate(0,0,c,pp{dataset_no},[],ds{dataset_no},[],cluster_count(dataset_no),2,0.5,1);
+
+%     [c,~]= do_kMediod_time (ds{dataset_no},cluster_count(dataset_no),0,'dis_method','SAXminDis','rep','SAX','alphabet_size',8,'compression_ratio',4);
+%     [c,Z]=do_Hierarchical_time(ds{dataset_no},cluster_count(dataset_no),'average',-1,'dis_method','SAXminDis','rep','SAX','alphabet_size',8,'compression_ratio',4,'dtw_bound',0.8);
+
+%   [SSEP,SSEC,RI,purity,BCubed,ConEntropy,f_measure,jacard,FM,quality]= do_Evaluate(pp{dataset_no},c,ds{dataset_no},[],[]);
+%          details(dataset_no,:)=[SSEP,SSEC,RI,purity,BCubed,ConEntropy,f_measure,jacard,FM,quality];
+%          h= dendrogram(Z);
+%       Plot_time_series_luminate(0,0,c, pp{dataset_no},[],ds{dataset_no},[],cluster_count(dataset_no),2,0.5,4);
+%     fprintf(fileID,'dataset_no: %d \n',dataset_no);
 end
 
 
-function plot_histogram()
-    %    Plot_time_series(2,1,pp{dataset_no},pp{dataset_no},[],ds{dataset_no},[],cluster_count(dataset_no),3,0);
-    
-    %     dis=Mtx_Distance(ds{dataset_no},ds{dataset_no},'same','dis_method','Euclid','rep','RAW');
-    %     x=squareform(dis);
-    %     figure(1);
-    %     h = normplot(x);
-    %     figure(2);
-    %     hist(x)
+function plot_histogram(dis,data)
+%    Plot_time_series(2,1,pp{dataset_no},pp{dataset_no},[],ds{dataset_no},[],cluster_count(dataset_no),3,0);
+if isempty(dis)
+     dis=Mtx_Distance(data,data,'same','dis_method','Euclid','rep','RAW');
+end
+  Nor = dis - min( dis(:) );
+    if max( Nor(:) ) ~= 0
+        dis = Nor / max( Nor(:) );
+    else
+        dis=Nor;
+    end
+     dis=squareform(dis);
+     figure(1);
+     h = normplot(dis);
+     figure(2);
+     hist(dis)
 end
 
 function result=evaluate_distance(nor_traj_raw)

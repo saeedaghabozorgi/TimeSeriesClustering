@@ -1,4 +1,4 @@
-function [C]=do_CAST_time(nor_traj_raw,dist,theroshold,varargin)
+function [C]=do_CAST_time(nor_traj_raw,dist_raw,theroshold,varargin)
 options = struct('dis',[],'alphabet_size',0,'compression_ratio',0,'rep','RAW','dis_method','Euclid');
 optionNames = fieldnames(options);
 nArgs = length(varargin);
@@ -24,10 +24,12 @@ C=[];
 obj=nor_traj;
 U=[1:length(obj)]';
 C_open=[];
-if ~isempty(dist)
+if isempty(dist_raw)
     dis=Mtx_Distance(nor_traj,nor_traj,'same','Norm',varargin{:});
 else
-    dismatrix=dist
+ %   dis=Mtx_Distance(nor_traj,nor_traj,'same','Norm',varargin{:});
+    
+    dismatrix=dist_raw;
     Nor = dismatrix - min( dismatrix(:) );
     if max( Nor(:) ) ~= 0
         dismatrix = Nor / max( Nor(:) );
@@ -43,6 +45,7 @@ C=zeros(length(obj),1);
 % only for print
 Affin=sum(sim,2)./(size(sim,1)-1);
 fix_val =  mean(Affin);
+sigma = std(Affin);
 %disp(['       --> FIX_VAL:',num2str(fix_val),' | ',' obj:',num2str(length(obj))]);
 while (~isempty(U))
     if theroshold==-6
@@ -52,11 +55,11 @@ while (~isempty(U))
     elseif theroshold==-4
         fix_t=calculateT4([1:1:length(sim)]',sim);
     elseif theroshold==-3
-        fix_t=calculateT3(U,sim);
+        fix_t=outlierBased(U,sim); %o utlier based > sigma
     elseif theroshold==-2
-        fix_t=calculateT2(sim);
+        fix_t=ECAST(U,sim);  % ECAST
     elseif theroshold==-1
-        fix_t=calculateT1(U,sim); % ECAST
+        fix_t=MyECAST(U,sim); % MyECAST
     else
         fix_t=theroshold;
     end
@@ -112,7 +115,7 @@ end
 end
 
 
-function T=calculateT1(U,sim) % ECAST
+function T=MyECAST(U,sim) % MyECAST
 %fix_val=0.5;
 Affin=sum(sim,2)./(size(sim,1)-1);
 fix_val =  mean(Affin);
@@ -140,7 +143,7 @@ else
 end
 end
 
-function T=calculateT3(U,sim)
+function T=outlierBased(U,sim)
 sim=sim(U,U);
 Affin=sum(sim,2)./(size(sim,1)-1);
 mu = mean(Affin);
@@ -148,7 +151,7 @@ sigma = std(Affin);
 outliers = Affin - mu < -1*sigma;
 nol=sum(outliers);
 if nol==0
-    T=0;
+        T=1;
 else
     T=max(Affin(outliers));
 end
@@ -170,8 +173,17 @@ else
 end
 end
 
-function T=calculateT5(U,main_sim) % single run
-
+function T=ECAST(U,sim) % ECAST
+fix_val=0.5;
+sim2=sim(U,U);
+sim2(1:length(sim2)+1:length(sim2)*length(sim2))=0;
+sim2= squareform(sim2);
+sim2=sim2-fix_val;
+sim2=sim2(sim2>0);
+T=mean(mean(sim2))+fix_val;
+if isnan(T)
+    T=1;
+end
 end
 
 

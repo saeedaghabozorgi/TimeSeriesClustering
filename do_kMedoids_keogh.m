@@ -5,6 +5,7 @@ D = squareform(Dist);
 n = size(D,1);
 
 medoids = randsample(n,k);
+medoids=[1:k]';
 [costs,labels] = min(D(medoids,:));
 cost = sum(costs);
 

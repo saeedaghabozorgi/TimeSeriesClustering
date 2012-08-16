@@ -1,4 +1,4 @@
-function [c,itr]= do_kMediod_time (nor_traj_raw,k,isRand,varargin)
+function [c,itr]= do_kMediod_time (nor_traj_raw,k,isRand,dist_mtx_DTW,varargin)
 
 options = struct('alphabet_size',0,'compression_ratio',0,'weight',[],'rep','RAW');
 optionNames = fieldnames(options);
@@ -16,6 +16,7 @@ for pair = reshape(varargin,2,[]) %# pair is {propName;propValue}
         %       error('%s is not a recognized parameter name',inpName)
     end
 end
+
 
 % representation
 nor_traj=represent_TS(nor_traj_raw,options.rep,varargin{:});
@@ -35,20 +36,27 @@ if k>Rows
 end
 % initial value of centroid
 if isRand,
-    p = randperm(Rows);      % random initialization
-    center=nor_traj{p(1:k)};
+    inx = randperm(Rows);      % random initialization
+    center=nor_traj{inx(1:k)};
 else
-        center=nor_traj(1:k);      % sequential initialization
+    inx=[1:k];
+    center=nor_traj(inx);      % sequential initialization
 end
 
 if ~isempty(options.weight)
     [~,inx]=sort(options.weight,'descend');
+    inx=inx';
     center=nor_traj(inx(1:k));
 end
+cen_inx=inx(1:k);
 
 while 1,
     itr=itr+1;
-    dis=Mtx_Distance(nor_traj,center,'cell_not_same','Norm',varargin{:});
+    if isempty(dist_mtx_DTW)
+        dis=Mtx_Distance(nor_traj,center,'cell_not_same','Norm',varargin{:});
+    else
+        dis= dist_mtx_DTW(:,cen_inx);
+    end
     [z,c]=min(dis,[],2);  % find group matrix g
     if (c==temp | itr==20),
         break;          % stop the iteration
@@ -61,9 +69,17 @@ while 1,
         case 'SAX'
             for i=1:k
                 if isempty(options.weight)
-                    center{i}= medoid_SAX(c,i, nor_traj,varargin{:});
+                      newData=find(c(:,1)==i);
+                    dis1=dist_mtx_DTW(newData,newData);
+                    [medoid inx]=centre_mediod(c,i,nor_traj,dis1,varargin{:});
+                    cen_inx(1,i)=inx;
+                    center{i}=medoid;
                 else
-                    center{i}= medoid_SAX_weight(c,i, nor_traj,options.weight,varargin{:});
+                        newData=find(c(:,1)==i);
+                    dis1=dist_mtx_DTW(newData,newData);
+                    [medoid inx]=centre_mediod_weighted(c,i,nor_traj,dis1,varargin{:});
+                    cen_inx(1,i)=inx;
+                    center{i}=medoid;
                 end
                 % center{i}=centroid_SAX(c,i,nor_traj,length(nor_traj{1}), alphabet_size,compression_ratio)
                 if  isempty(center{i})
@@ -73,12 +89,30 @@ while 1,
             %-------------------------------------------------------------
         case 'RAW'
             for i=1:k
-                center{i}=centre_mediod(c,i,nor_traj,varargin{:});
+                if isempty(options.weight)
+                    newData=find(c(:,1)==i);
+                    dis1=dist_mtx_DTW(newData,newData);
+                    [medoid inx]=centre_mediod(c,i,nor_traj,dis1,varargin{:});
+                    cen_inx(1,i)=inx;
+                    center{i}=medoid;
+                else
+                    newData=find(c(:,1)==i);
+                    dis1=dist_mtx_DTW(newData,newData);
+                    [medoid inx]=centre_mediod_weighted(c,i,nor_traj,dis1,varargin{:});
+                    cen_inx(1,i)=inx;
+                    center{i}=medoid;
+                    
+                end
+                
+                
+                
             end
             %-------------------------------------------------------------
         case 'PAA'
             for i=1:k
-                center{i}=centre_mediod(c,i,nor_traj,varargin{:});
+                [medoid inx]=centre_mediod(c,i,nor_traj,dis,varargin{:});
+                cen_inx(i,1)=inx;
+                center{i}=medoid;
             end
             %-------------------------------------------------------------
         otherwise
@@ -127,22 +161,112 @@ end
 
 
 
-function medoid=centre_mediod(c,clusterNum,nor_traj,varargin)
+% function medoid =centre_mediod(c,clusterNum,nor_traj,varargin)
+%
+% t=find(c(:,1)==clusterNum);
+% if isempty (t)
+%     medoid=[];
+% elseif length(t)<3
+%     medoid=nor_traj{t(1)};
+% else
+%
+%     %find distance of objects in cluster
+%     dis=Mtx_Distance(nor_traj(t),nor_traj(t),'same','Norm',varargin{:});
+%
+%     %find the SSE
+%     dis=dis.^2;
+%     Error=sum(dis);
+%     [s,m]=min(Error);
+%     medoid=nor_traj{t(m)};
+% end
+% end
+
+function [medoid inx]=centre_mediod(c,clusterNum,nor_traj_raw,dis,varargin)
+%clusterNum
+options = struct('rep','RAW');
+optionNames = fieldnames(options);
+nArgs = length(varargin);
+if round(nArgs/2)~=nArgs/2
+    error('EXAMPLE needs propertyName/propertyValue pairs')
+end
+for pair = reshape(varargin,2,[]) %# pair is {propName;propValue}
+    inpName = lower(pair{1}); %# make case insensitive
+    if any(strmatch(inpName,optionNames))
+        options.(inpName) = pair{2};
+    end
+end
 
 t=find(c(:,1)==clusterNum);
+
 if isempty (t)
     medoid=[];
-elseif length(t)<3
-    medoid=nor_traj{t(1)};
-else
     
+elseif length(t)<=2
+    nor_traj=represent_TS(nor_traj_raw(t),options.rep,varargin{:});
+    % medoid=nor_traj{1}; % transfered
+    medoid=nor_traj_raw{t(1)};
+    inx=t(1);
+else
+    nor_traj=represent_TS(nor_traj_raw(t),options.rep,varargin{:});
     %find distance of objects in cluster
-    dis=Mtx_Distance(nor_traj(t),nor_traj(t),'same','Norm',varargin{:});
+    
+    %dis=Mtx_Distance(nor_traj,nor_traj,'same',varargin{:});
     
     %find the SSE
     dis=dis.^2;
     Error=sum(dis);
     [s,m]=min(Error);
-    medoid=nor_traj{t(m)};
+    % medoid=nor_traj{m}; %transfered
+    medoid=nor_traj_raw{t(m)};
+    inx=t(m);
+end
+end
+
+function [medoid inx]=centre_mediod_weighted(c,clusterNum,nor_traj_raw,dis,varargin)
+%clusterNum
+options = struct('rep','RAW','weight',[]);
+optionNames = fieldnames(options);
+nArgs = length(varargin);
+if round(nArgs/2)~=nArgs/2
+    error('EXAMPLE needs propertyName/propertyValue pairs')
+end
+for pair = reshape(varargin,2,[]) %# pair is {propName;propValue}
+    inpName = lower(pair{1}); %# make case insensitive
+    if any(strmatch(inpName,optionNames))
+        options.(inpName) = pair{2};
+    end
+end
+
+t=find(c(:,1)==clusterNum);
+
+if isempty (t)
+    medoid=[];
+    
+elseif length(t)<=2
+    nor_traj=represent_TS(nor_traj_raw(t),options.rep,varargin{:});
+    % medoid=nor_traj{1}; % transfered
+    medoid=nor_traj_raw{t(1)};
+    inx=t(1);
+else
+    nor_traj=represent_TS(nor_traj_raw(t),options.rep,varargin{:});
+    %find distance of objects in cluster
+    
+    %dis=Mtx_Distance(nor_traj,nor_traj,'same',varargin{:});
+
+    weight=options.weight(t);
+    for i=1:length(t)
+        for j=1:length(t)
+            w(i,j)=weight(i)+weight(j);
+        end
+    end
+    dis=dis./w;
+
+    %find the SSE
+    dis=dis.^2;
+    Error=sum(dis,2);
+    [s,m]=min(Error);
+    % medoid=nor_traj{m}; %transfered
+    medoid=nor_traj_raw{t(m)};
+    inx=t(m);
 end
 end
