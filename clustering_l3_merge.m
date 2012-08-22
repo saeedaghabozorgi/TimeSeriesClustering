@@ -23,18 +23,23 @@ disp(['  ','DS',':',num2str(length(center)),' | ','K',':',num2str(k),' | ','dis_
 disp(['  clustering:',num2str(options.l3_alg)]);
 l2_clusterCount=max(c_inp);
 
-%--------------------------
-% to do: check A to not calculate the distance again
-%         for ii=1:length(cen_inx)-1
-%             for jj=ii+1:length(cen_inx)
-%                 if A(cen_inx(ii),cen_inx(jj))==0
-%                     D(cen_inx(ii),cen_inx(jj))=dis_dtw3(nor_traj{cen_inx(ii)},nor_traj{cen_inx(jj)},length(nor_traj{cen_inx(ii)}));
-%                     D(cen_inx(jj),cen_inx(ii))= D(cen_inx(ii),cen_inx(jj));
-%                 end
-%             end
-%         end
+
 nor_traj=represent_TS(nor_traj_raw,options.l3_rep,'alphabet_size',options.l3_alphabet_size,'compression_ratio',options.l3_compression_ratio,'dtw_bound',options.l3_dtw_bound);
-D(cen_inx,cen_inx)=dist_mtx_DTW(cen_inx,cen_inx);
+
+if ~isempty (dist_mtx_DTW)
+    D(cen_inx,cen_inx)=dist_mtx_DTW(cen_inx,cen_inx);
+else
+    % to do: check A to not calculate the distance again
+    for ii=1:length(cen_inx)-1
+        for jj=ii+1:length(cen_inx)
+            if A(cen_inx(ii),cen_inx(jj))==0
+                D(cen_inx(ii),cen_inx(jj))=dis_dtw3(nor_traj{cen_inx(ii)},nor_traj{cen_inx(jj)},length(nor_traj{cen_inx(ii)}));
+                D(cen_inx(jj),cen_inx(ii))= D(cen_inx(ii),cen_inx(jj));
+            end
+        end
+    end
+    
+end
 A(cen_inx,cen_inx)=1;
 Dist=D(cen_inx,cen_inx);
 if l2_clusterCount<k
@@ -42,51 +47,6 @@ if l2_clusterCount<k
     return;
 end
 
-%-----test_all_algorithm--------------------------
-% best_so_far=0;
-%     [c3,~]=do_Hierarchical_time(center,k,'average',-1,Dist,'dis_method',options.l3_dis_method,'rep',options.l3_rep,'alphabet_size',options.l3_alphabet_size,'compression_ratio',options.l3_compression_ratio,'dtw_bound',options.l3_dtw_bound);
-%     c_tmp=labeling(c3,c_inp,k);
-%     [~, ~,~,~,~,~,~,~,~,~,~,quality]= do_Evaluate(p,c_tmp,nor_traj_raw,[],[]);
-%     if(quality>best_so_far)
-%         best_so_far=quality;
-%         c=c_tmp;
-%         alg='hier_avg';
-%     end
-%     [c3,~]=do_Hierarchical_time(center,k,'single',-1,Dist,'dis_method',options.l3_dis_method,'rep',options.l3_rep,'alphabet_size',options.l3_alphabet_size,'compression_ratio',options.l3_compression_ratio,'dtw_bound',options.l3_dtw_bound);
-%         c_tmp=labeling(c3,c_inp,k);
-%     [~, ~,~,~,~,~,~,~,~,~,~,quality]= do_Evaluate(p,c_tmp,nor_traj_raw,[],[]);
-%     if(quality>best_so_far)
-%         best_so_far=quality;
-%         c=c_tmp;
-%         alg='hier_single';
-%     end
-%     [c3,~]= do_kMediod_time (center,k,0,Dist,'weight',weight, 'dis_method',options.l3_dis_method,'rep',options.l3_rep,'alphabet_size',options.l3_alphabet_size,'compression_ratio',options.l3_compression_ratio,'dtw_bound',options.l3_dtw_bound);
-%         c_tmp=labeling(c3,c_inp,k);
-%     [~, ~,~,~,~,~,~,~,~,~,~,quality]= do_Evaluate(p,c_tmp,nor_traj_raw,[],[]);
-%     if(quality>best_so_far)
-%         best_so_far=quality;
-%         c=c_tmp;
-%         alg='k-medoids_weighted';
-%     end
-%     [c3,~]= do_kMediod_time (center,k,0,Dist,'dis_method',options.l3_dis_method,'rep',options.l3_rep,'alphabet_size',options.l3_alphabet_size,'compression_ratio',options.l3_compression_ratio,'dtw_bound',options.l3_dtw_bound);
-%     c_tmp=labeling(c3,c_inp,k);
-%     [~, ~,~,~,~,~,~,~,~,~,~,quality]= do_Evaluate(p,c_tmp,nor_traj_raw,[],[]);
-%     if(quality>best_so_far)
-%         best_so_far=quality;
-%         c=c_tmp;
-%         alg='k-medoids';
-%     end
-%     [c3,~]= do_kMedoids_keogh(k,squareform(Dist));
-%     c_tmp=labeling(c3,c_inp,k);
-%     [~, ~,~,~,~,~,~,~,~,~,~,quality]= do_Evaluate(p,c_tmp,nor_traj_raw,[],[]);
-%     if(quality>best_so_far)
-%         best_so_far=quality;
-%         c=c_tmp;
-%         alg='k-medoids-keogh';
-%     end
-%     disp([alg]);
-%     options.l3_alg=alg;
-%--------------------------------------------------
 if strmatch(options.l3_alg,'hier_avg')
     [c3,Z]=do_Hierarchical_time(center,k,'average',-1,Dist,'dis_method',options.l3_dis_method,'rep',options.l3_rep,'alphabet_size',options.l3_alphabet_size,'compression_ratio',options.l3_compression_ratio,'dtw_bound',options.l3_dtw_bound);
 elseif strmatch(options.l3_alg,'hier_single')
@@ -118,8 +78,8 @@ if plot_show
     %     Plot_time_series_luminate(0,0,c3,p,[],center,[],k,0,0.5,4);
     Plot_time_series_luminate(0,0,c,p,[],nor_traj_raw,[],k,0,0.5,5);
 end;
-[SSEP,SSEC,RI,ARI,purity,BCubed,ConEntropy,f_measure,jacard,FM,NMI,quality]= do_Evaluate(p,c,nor_traj_raw,[],[]);
-details=[SSEP,SSEC,RI,ARI,purity,BCubed,ConEntropy,f_measure,jacard,FM,NMI,quality];
+[SSEP,SSEC,RI,ARI,purity,ConEntropy,f_measure,jacard,FM,NMI,CSM,quality]= do_Evaluate(p,c,nor_traj_raw,[],[]);
+details=[SSEP,SSEC,RI,ARI,purity,ConEntropy,f_measure,jacard,FM,NMI,CSM,quality];
 disp(['  --> quality:',num2str(quality)]);
 end
 

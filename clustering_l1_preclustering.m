@@ -1,4 +1,4 @@
-function [c distance]=clustering_l1_preclustering(k,p,nor_traj_raw,plot_show,varargin)
+function [c distance details]=clustering_l1_preclustering(k,p,nor_traj_raw,plot_show,varargin)
 options = struct('l1_dis_method','-','l1_dtw_bound',0,'l1_rep','SAX','l1_alphabet_size',0,'l1_compression_ratio',0,'l1_alg','-');
 optionNames = fieldnames(options);
 nArgs = length(varargin);
@@ -30,12 +30,14 @@ elseif strmatch(options.l1_alg,'k-medoids')
     [c,~]= do_kMediod_time (nor_traj_raw,k,0,distance,'dis_method',options.l1_dis_method,'dtw_bound',options.l1_dtw_bound,'rep',options.l1_rep,'alphabet_size',options.l1_alphabet_size,'compression_ratio',options.l1_compression_ratio);
 elseif strmatch(options.l1_alg,'hier_avg')
     [c,~,distance]= do_Hierarchical_time (nor_traj_raw,k,'average',-1,distance,'dis_method',options.l1_dis_method,'dtw_bound',options.l1_dtw_bound,'rep',options.l1_rep,'alphabet_size',options.l1_alphabet_size,'compression_ratio',options.l1_compression_ratio);
+elseif strmatch(options.l1_alg,'hier_single')
+    [c,~,distance]= do_Hierarchical_time (nor_traj_raw,k,'single',-1,distance,'dis_method',options.l1_dis_method,'dtw_bound',options.l1_dtw_bound,'rep',options.l1_rep,'alphabet_size',options.l1_alphabet_size,'compression_ratio',options.l1_compression_ratio);
 elseif strmatch(options.l1_alg,'k-medoids-keogh')
     dis=squareform(distance);
     [c,~]= do_kMedoids_keogh(k,dis);
-    
 end
-[SSEP,SSEC,RI,ARI,purity,BCubed,ConEntropy,f_measure,jacard,FM,NMI,quality]= do_Evaluate(p,c,nor_traj_raw,[],[]);
+[SSEP,SSEC,RI,ARI,purity,ConEntropy,f_measure,jacard,FM,NMI,CSM,quality]= do_Evaluate(p,c,nor_traj_raw,[],[]);
+details=[SSEP,SSEC,RI,ARI,purity,ConEntropy,f_measure,jacard,FM,NMI,CSM,quality];
 error_rate=Calculate_error_rate(c,p);
 disp(['  --> Number of clusters:',num2str(k),' | ','quality:',num2str(quality),' | ','error_rate:', num2str(error_rate)]);
 

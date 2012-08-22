@@ -49,23 +49,23 @@ for i=1:clusterCount
     % representation
     nor_traj=represent_TS(nor_traj_raw,options.l2_rep,varargin{:});
     %--------------------------
-    % to do: check A to not calculate the distance again
-%     for ii=1:length(newData)-1
-%         for jj=ii+1:length(newData)
-%             if A(newData(ii),newData(jj))==0
-%                 D(newData(ii),newData(jj))=dis_dtw3(nor_traj{newData(ii)},nor_traj{newData(jj)},length(nor_traj{newData(ii)}));
-%                 D(newData(jj),newData(ii))= D(newData(ii),newData(jj));
-%             end
-%         end
-%     end
-%    
     %--------------------------------
     %dist1=Mtx_Distance(nor_traj(newData),nor_traj(newData),'same','org','dis_method',options.l2_dis_method,'dtw_bound',options.l2_dtw_bound,'alphabet_size',options.l2_alphabet_size,'compression_ratio',options.l2_compression_ratio);
-
+if ~isempty (dist_mtx_DTW)
     D(newData,newData)=dist_mtx_DTW(newData,newData);
-    A(newData,newData)=1 ;
-
-    
+else
+        % to do: check A to not calculate the distance again
+    for ii=1:length(newData)-1
+        for jj=ii+1:length(newData)
+            if A(newData(ii),newData(jj))==0
+                D(newData(ii),newData(jj))=dis_dtw3(nor_traj{newData(ii)},nor_traj{newData(jj)},length(nor_traj{newData(ii)}));
+                D(newData(jj),newData(ii))= D(newData(ii),newData(jj));
+            end
+        end
+    end
+   
+end
+        A(newData,newData)=1 ;
     %-------------------
     % only for print
     dismatrix=D(newData,newData);
@@ -98,7 +98,7 @@ for i=1:clusterCount
 end
 %-------
 % to map raw objects to new clusters
-c(:,3)=c(:,1)*10000+c(:,2);
+c(:,3)=c(:,1)*100000+c(:,2);
 [x,y]=sort(c);
 clsNum=1;
 c(y(1,3),4)=clsNum;
