@@ -1,4 +1,4 @@
-function [c distance details]=clustering_l1_preclustering(k,p,nor_traj_raw,plot_show,varargin)
+function [c distance details]=clustering_l1_preclustering(k,p,nor_traj_raw,plot_show,dist_mtx,varargin)
 options = struct('l1_dis_method','-','l1_dtw_bound',0,'l1_rep','SAX','l1_alphabet_size',0,'l1_compression_ratio',0,'l1_alg','-');
 optionNames = fieldnames(options);
 nArgs = length(varargin);
@@ -23,7 +23,11 @@ c=[];
 %k1=k;
 
 nor_traj=represent_TS(nor_traj_raw,options.l1_rep,'alphabet_size',options.l1_alphabet_size,'compression_ratio',options.l1_compression_ratio);
-distance=Mtx_Distance(nor_traj,nor_traj,'same','Org', 'dis_method',options.l1_dis_method,'dtw_bound',options.l1_dtw_bound,'rep',options.l1_rep,'alphabet_size',options.l1_alphabet_size,'compression_ratio',options.l1_compression_ratio);
+if ~isempty (dist_mtx)
+    distance=dist_mtx_DTW(newData,newData);
+else
+    distance=Mtx_Distance(nor_traj,nor_traj,'same','Org', 'dis_method',options.l1_dis_method,'dtw_bound',options.l1_dtw_bound,'rep',options.l1_rep,'alphabet_size',options.l1_alphabet_size,'compression_ratio',options.l1_compression_ratio);
+end
 if strmatch(options.l1_alg,'k-modes')
     [c,itr]= do_kModes_time(nor_traj_raw,k,0,'dis_method',options.l1_dis_method,'dtw_bound',options.l1_dtw_bound,'rep',options.l1_rep,'alphabet_size',options.l1_alphabet_size,'compression_ratio',options.l1_compression_ratio);
 elseif strmatch(options.l1_alg,'k-medoids')
