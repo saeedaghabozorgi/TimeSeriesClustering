@@ -28,6 +28,18 @@ switch rep
             sym=rep_SAX(nor_traj_raw{i}, data_len, nseg, alphabet_size);
             nor_traj{i}=sym(1,:) ;
         end
+
+        %-------------------------------------------------------------
+            case 'PAA'
+        alphabet_size=options.alphabet_size;
+        compression_ratio=options.compression_ratio;
+        data_len=(floor(size(nor_traj_raw{1},2)/compression_ratio))*compression_ratio;
+        nseg = data_len/compression_ratio;
+        for i=1:length(nor_traj_raw)
+            sym=rep_PAA(nor_traj_raw{i}, data_len, nseg, alphabet_size);
+          %  [PAA] =  rep_PAA(data, N, n, alphabet_size)
+            nor_traj{i}=sym(1,:) ;
+        end
         %-------------------------------------------------------------
     case 'RAW'
         nor_traj = nor_traj_raw;

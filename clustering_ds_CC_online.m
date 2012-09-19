@@ -1,6 +1,6 @@
 function clustering_ds_CC_online
 detl=[];
-for dataset_no=6:10
+for dataset_no=7:10
     train_data = ds_Generator_CC(10*dataset_no);
     TRAIN_class_labels = train_data(:,1);     % Pull out the class labels.
     p=train_data(:,1);
@@ -14,17 +14,19 @@ for dataset_no=6:10
     %%
     %--- to save CBF and matrix data and lables
 %        ds_CBF=train_data(1:300,2:129);
-        foldpath=['..\dataset CC'];
-        file_name=['ds_CC_',int2str(rows)];
-        mkdir([foldpath,'\',file_name]);
-        save([foldpath,'\',file_name,'\',file_name,'.mat'],'train_data');
-        calculate_DTW_matrix_paralele(ds{dataset_no},[foldpath,'\',file_name,'\',file_name,'_dismat_DTW.mat']);
+%         foldpath=['..\dataset CC'];
+%         file_name=['ds_CC_',int2str(rows)];
+%         mkdir([foldpath,'\',file_name]);
+%         save([foldpath,'\',file_name,'\',file_name,'.mat'],'train_data');
+%         calculate_DTW_matrix_paralele(ds{dataset_no},[foldpath,'\',file_name,'\',file_name,'_dismat_DTW.mat']);
 %         load('..\dataset CBF\prepared_mtx_CBF\dismat_DTW_CBF_300.mat','dismat');
 %         D=dismat+dismat';
 %         D=squareform(D);
 %         [label,~]= do_kMedoids_keogh(k,D);
 %         save('..\dataset CBF\ds_CBF_300_label.mat', 'label')
     %---------------------------------------
+    
+        details{dataset_no}=clustering_anytime2(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no},[]);
     
    %    details(dataset_no,:)=clustering_Hybrid_3Level(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no},[]);
     %   details(dataset_no,:)=clustering_Hybrid_3Level_anytime3(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no});

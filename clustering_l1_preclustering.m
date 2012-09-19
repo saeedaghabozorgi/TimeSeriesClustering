@@ -23,15 +23,21 @@ c=[];
 %k1=k;
 
 nor_traj=represent_TS(nor_traj_raw,options.l1_rep,'alphabet_size',options.l1_alphabet_size,'compression_ratio',options.l1_compression_ratio);
+
+
 if ~isempty (dist_mtx)
-    distance=dist_mtx_DTW(newData,newData);
+    distance=dist_mtx;
 else
     distance=Mtx_Distance(nor_traj,nor_traj,'same','Org', 'dis_method',options.l1_dis_method,'dtw_bound',options.l1_dtw_bound,'rep',options.l1_rep,'alphabet_size',options.l1_alphabet_size,'compression_ratio',options.l1_compression_ratio);
 end
 if strmatch(options.l1_alg,'k-modes')
-    [c,itr]= do_kModes_time(nor_traj_raw,k,0,'dis_method',options.l1_dis_method,'dtw_bound',options.l1_dtw_bound,'rep',options.l1_rep,'alphabet_size',options.l1_alphabet_size,'compression_ratio',options.l1_compression_ratio);
+    [c,itr]= do_kModes_time(nor_traj_raw,k,1,'dis_method',options.l1_dis_method,'dtw_bound',options.l1_dtw_bound,'rep',options.l1_rep,'alphabet_size',options.l1_alphabet_size,'compression_ratio',options.l1_compression_ratio);
 elseif strmatch(options.l1_alg,'k-medoids')
     [c,~]= do_kMediod_time (nor_traj_raw,k,0,distance,'dis_method',options.l1_dis_method,'dtw_bound',options.l1_dtw_bound,'rep',options.l1_rep,'alphabet_size',options.l1_alphabet_size,'compression_ratio',options.l1_compression_ratio);
+elseif strmatch(options.l1_alg,'CAST')
+    [c]= do_CAST_time (nor_traj_raw,distance,0.4,'dis_method',options.l1_dis_method,'dtw_bound',options.l1_dtw_bound,'rep',options.l1_rep,'alphabet_size',options.l1_alphabet_size,'compression_ratio',options.l1_compression_ratio);
+    %[temp_c]= do_CAST_time
+    %(nor_traj(newData),dist1,-1,'dis_method',options.l2_dis_method,'rep',options.l2_rep,'alphabet_size',options.l2_alphabet_size,'compression_ratio',options.l2_compression_ratio,'dtw_bound',options.l2_dtw_bound);
 elseif strmatch(options.l1_alg,'hier_avg')
     [c,~,distance]= do_Hierarchical_time (nor_traj_raw,k,'average',-1,distance,'dis_method',options.l1_dis_method,'dtw_bound',options.l1_dtw_bound,'rep',options.l1_rep,'alphabet_size',options.l1_alphabet_size,'compression_ratio',options.l1_compression_ratio);
 elseif strmatch(options.l1_alg,'hier_single')

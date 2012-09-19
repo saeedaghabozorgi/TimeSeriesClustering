@@ -1,20 +1,23 @@
-function [c,itr]= do_kMeans_time (nor_traj,k,dis_method,isRand,rep,varargin)
+function [c,itr,center]= do_kMeans_time (nor_traj_raw,k,dist_mtx_DTW,isRand,varargin)
 
-options = struct('alphabet_size',0,'compression_ratio',0);
+options = struct('alphabet_size',0,'compression_ratio',0,'rep','RAW','center',[]);
 optionNames = fieldnames(options);
 nArgs = length(varargin);
 if round(nArgs/2)~=nArgs/2
-   error('EXAMPLE needs propertyName/propertyValue pairs')
+    error('EXAMPLE needs propertyName/propertyValue pairs')
 end
 
 for pair = reshape(varargin,2,[]) %# pair is {propName;propValue}
-   inpName = lower(pair{1}); %# make case insensitive
-   if any(strmatch(inpName,optionNames))
-      options.(inpName) = pair{2};
-%    else
-%       error('%s is not a recognized parameter name',inpName)
+    inpName = lower(pair{1}); %# make case insensitive
+    if any(strmatch(inpName,optionNames))
+        options.(inpName) = pair{2};
+        %    else
+        %       error('%s is not a recognized parameter name',inpName)
     end
 end
+
+% representation
+nor_traj=represent_TS(nor_traj_raw,options.rep,varargin{:});
 
 
 c=[];
@@ -31,21 +34,27 @@ if k>Rows
     return;
 end
 % initial value of centroid
-if isRand,
-    p = randperm(Rows);      % random initialization
-    for i=1:k
-        center{i}=nor_traj{p(i)};
+if isRand==2,
+    for i=1:length(options.center) % input center
+       
+         center{i}=options.center{i};
     end
+elseif isRand==1,
+    inx = randperm(Rows);      % random initialization
+    center=nor_traj(inx(1:k));
 else
-    for i=1:k
-        center{i}=nor_traj{i};      % sequential initialization
-    end
+    inx=[1:k];
+    center=nor_traj(inx);      % sequential initialization
 end
 
 while 1,
     itr=itr+1;
-    itr
-    dis=Mtx_Distance(nor_traj,center,'cell_not_same',dis_method,varargin{:});
+    itr;
+    if isempty(dist_mtx_DTW)
+        dis=Mtx_Distance(nor_traj,center,'cell_not_same','Norm',varargin{:});
+    else
+        dis= dist_mtx_DTW(:,cen_inx);
+    end
     [z,c]=min(dis,[],2);  % find group matrix g
     if (c==temp | itr==10),
         break;          % stop the iteration
@@ -53,13 +62,13 @@ while 1,
         temp=c;         % copy group matrix to temporary variable
     end
     
-    switch rep
+    switch options.rep
         case 'SAX'
             %-------------------------------------------------------------
             for i=1:k
-                 center{i}= centre_modes(c,i, nor_traj);
+                center{i}= centre_modes(c,i, nor_traj);
                 % center{i}= medoid_SAX(c,i, nor_traj,dis_method,alphabet_size,compression_ratio);
-               % center{i}=centroid_SAX(c,i,nor_traj,length(nor_traj{1}), alphabet_size,compression_ratio)
+                % center{i}=centroid_SAX(c,i,nor_traj,length(nor_traj{1}), alphabet_size,compression_ratio)
                 if  isempty(center{i})
                     center{i}=nor_traj{randperm(Rows)};
                 end
@@ -134,7 +143,7 @@ if isempty (t)
 elseif length(t)==1
     modes=nor_traj{t(1)};
 else
-   
+    
     for i=1:length(t)
         X(i,:)= nor_traj{t(i)};
     end

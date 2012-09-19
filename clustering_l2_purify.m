@@ -42,30 +42,22 @@ for i=1:clusterCount
     Affin1=sum(sim,2)./(size(sim,1)-1);
     pre_avg_sim=  mean(Affin1);
     pre_sigma_sim = std(Affin1);
-%        figure;
-%        dd=squareform(sim);
-%     hist(dd);
+    %        figure;
+    %        dd=squareform(sim);
+    %     hist(dd);
     %--------------
     % representation
-    nor_traj=represent_TS(nor_traj_raw,options.l2_rep,varargin{:});
+    nor_traj=represent_TS(nor_traj_raw,options.l2_rep,'alphabet_size',options.l2_alphabet_size,'compression_ratio',options.l2_compression_ratio);
     %--------------------------
     %--------------------------------
-    %dist1=Mtx_Distance(nor_traj(newData),nor_traj(newData),'same','org','dis_method',options.l2_dis_method,'dtw_bound',options.l2_dtw_bound,'alphabet_size',options.l2_alphabet_size,'compression_ratio',options.l2_compression_ratio);
-if ~isempty (dist_mtx_DTW)
-    D(newData,newData)=dist_mtx_DTW(newData,newData);
-else
-        % to do: check A to not calculate the distance again
-    for ii=1:length(newData)-1
-        for jj=ii+1:length(newData)
-            if A(newData(ii),newData(jj))==0
-                D(newData(ii),newData(jj))=dis_dtw3(nor_traj{newData(ii)},nor_traj{newData(jj)},length(nor_traj{newData(ii)}));
-                D(newData(jj),newData(ii))= D(newData(ii),newData(jj));
-            end
-        end
+    %dist1=
+    if ~isempty (dist_mtx_DTW)
+        D(newData,newData)=dist_mtx_DTW(newData,newData);
+    else
+        D(newData,newData)= Mtx_Distance(nor_traj(newData),nor_traj(newData),'same','org','dis_method',options.l2_dis_method,'dtw_bound',options.l2_dtw_bound,'alphabet_size',options.l2_alphabet_size,'compression_ratio',options.l2_compression_ratio);
+     
     end
-   
-end
-        A(newData,newData)=1 ;
+    A(newData,newData)=1 ;
     %-------------------
     % only for print
     dismatrix=D(newData,newData);
@@ -81,8 +73,8 @@ end
     Affin2=sum(sim,2)./(size(sim,1)-1);
     DTW_avg_sim=  mean(Affin2);
     DTW_sigma_sim = std(Affin2);
-%     figure;
-%       hist(Affin2);
+    %     figure;
+    %       hist(Affin2);
     %--------------
     
     dist1=D(newData,newData);
@@ -91,7 +83,7 @@ end
         mu=0;
         sigma=0;
     else
-        [temp_c]= do_CAST_time (nor_traj(newData),dist1,-1,'dis_method',options.l2_dis_method,'rep',options.l2_rep,'alphabet_size',options.l2_alphabet_size,'compression_ratio',options.l2_compression_ratio,'dtw_bound',options.l2_dtw_bound);
+        [temp_c]= do_CAST_time (nor_traj(newData),dist1,min(Affin1),'dis_method',options.l2_dis_method,'rep',options.l2_rep,'alphabet_size',options.l2_alphabet_size,'compression_ratio',options.l2_compression_ratio,'dtw_bound',options.l2_dtw_bound);
     end
     c(newData,2)=temp_c;
     disp(['  --> Pre-cluster#',num2str(i),'  Mems:',num2str(length(newData)),'  Clus:',num2str(max(temp_c)),' avg_sim_l1:(',num2str(pre_avg_sim),'-',num2str(pre_sigma_sim),')  avg_sim_DTW:',num2str(DTW_avg_sim),'-',num2str(DTW_sigma_sim),')']);

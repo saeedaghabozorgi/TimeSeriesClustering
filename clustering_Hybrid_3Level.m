@@ -1,21 +1,28 @@
 function [details]=clustering_Hybrid_3Level(nor_traj, k,p,dist_mtx_DTW,varargin)
 disp(['-- START ---------------------------------']);
-kk=round(length(nor_traj)/50);
+kk=round(length(nor_traj)/200);
 if kk<k
     kk=k;
 end
 A=zeros(length(nor_traj),length(nor_traj));
 %% ------------ Level 1-- k-mode --------
-parameter1={'l1_dis_method','Euclid','l1_dtw_bound',0,'l1_rep','RAW','l1_alphabet_size',8,'l1_compression_ratio',4,'l1_alg','k-medoids-keogh'};
-[c1 ,D,detailes]=clustering_l1_preclustering(kk,p,nor_traj,0,[],parameter1{:});
+parameter1={'l1_dis_method','DTW','l1_dtw_bound',0.2,'l1_rep','SAX','l1_alphabet_size',8,'l1_compression_ratio',8,'l1_alg','k-medoids-keogh'};
+[c1 ,D,detailes]=clustering_l1_preclustering(kk,p,nor_traj,1,[],parameter1{:});
 
 %% -------------Level 2--CAST--------------------------------------------
-parameter2={'l2_dis_method','DTW','l2_dtw_bound',1,'l2_rep','RAW','l2_alphabet_size',8,'l2_compression_ratio',2};
-[c2 ,error_rate,N_reduction_2lev,D,A]=clustering_l2_purify(c1,p,nor_traj,D,A,0,dist_mtx_DTW,parameter2{:});
-[center weight cen_inx]=clustering_l2_making_prototype(c2,p,nor_traj,D,0,parameter2{:});
+parameter2={'l2_dis_method','DTW','l2_dtw_bound',0.2,'l2_rep','SAX','l2_alphabet_size',8,'l2_compression_ratio',2};
+% [c2 ,error_rate,N_reduction_2lev,D,A]=clustering_l2_purify(c1,p,nor_traj,D,A,1,dist_mtx_DTW,parameter2{:});
+% [center weight cen_inx]=clustering_l2_making_prototype(c2,p,nor_traj,D,0,parameter2{:});
+
+% [c2 ,error_rate,N_reduction_2lev,D,A,cen_inx]=clustering_l2_purify_KNN(c1,p,nor_traj,D,A,0,dist_mtx_DTW,parameter2{:});
+% for i=1:length(cen_inx)
+%     center{i}=nor_traj{cen_inx};
+% end
+% weight=[];
 %% --------------Level 3-------------------------------------------------
-parameter3={'l3_dis_method','DTW','l3_dtw_bound',1,'l3_rep','RAW','l3_alphabet_size',8,'l3_compression_ratio',2,'l3_alg','k-medoids-keogh'};
-[c3 ,details]=clustering_l3_merge(c2,p,k,center,cen_inx',nor_traj,weight,D,A,0,dist_mtx_DTW,parameter3{:});
+parameter3={'l3_dis_method','DTW','l3_dtw_bound',0.2,'l3_rep','SAX','l3_alphabet_size',8,'l3_compression_ratio',2,'l3_alg','k-medoids-keogh'};
+[c3 ,details]=clustering_l3_merge(c2,p,k,center,cen_inx',nor_traj,weight,D,A,1,dist_mtx_DTW,parameter3{:});
+details=[details,length(cen_inx)];
 end
 
 

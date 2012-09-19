@@ -77,7 +77,7 @@ while (~isempty(U))
         iteration=iteration+1;
         old_c=C_open;
         %addition step
-        while max(a_U)>=fix_t ;
+        while max(a_U)>=(fix_t-0.00001) ;
             [~,inx]= max(a_U,[],1);
             u=U(inx);
             C_open=[C_open;u];
@@ -87,7 +87,7 @@ while (~isempty(U))
             a_C_open=sum(sim(C_open,C_open),2)/(length(C_open)-1);
         end
         % Removal Step
-        while ( min(a_C_open,[],1)<(fix_t) && min(a_C_open,[],1) >0);
+        while ( min(a_C_open,[],1)<(fix_t-0.00001) && min(a_C_open,[],1) >0);
             [~,inx]=min(a_C_open,[],1);
             u=C_open(inx);
             C_open(inx)=[];

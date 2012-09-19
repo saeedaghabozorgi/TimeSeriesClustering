@@ -30,15 +30,15 @@ if ~isempty (dist_mtx_DTW)
     D(cen_inx,cen_inx)=dist_mtx_DTW(cen_inx,cen_inx);
 else
     % to do: check A to not calculate the distance again
-    for ii=1:length(cen_inx)-1
-        for jj=ii+1:length(cen_inx)
-            if A(cen_inx(ii),cen_inx(jj))==0
-                D(cen_inx(ii),cen_inx(jj))=dis_dtw3(nor_traj{cen_inx(ii)},nor_traj{cen_inx(jj)},length(nor_traj{cen_inx(ii)}));
-                D(cen_inx(jj),cen_inx(ii))= D(cen_inx(ii),cen_inx(jj));
-            end
-        end
-    end
-    
+%     for ii=1:length(cen_inx)-1
+%         for jj=ii+1:length(cen_inx)
+%             if A(cen_inx(ii),cen_inx(jj))==0
+%                 D(cen_inx(ii),cen_inx(jj))=dis_dtw3(nor_traj{cen_inx(ii)},nor_traj{cen_inx(jj)},length(nor_traj{cen_inx(ii)}));
+%                 D(cen_inx(jj),cen_inx(ii))= D(cen_inx(ii),cen_inx(jj));
+%             end
+%         end
+%     end
+        D(cen_inx,cen_inx)= Mtx_Distance(nor_traj(cen_inx),nor_traj(cen_inx),'same','org','dis_method',options.l3_dis_method,'dtw_bound',options.l3_dtw_bound,'alphabet_size',options.l3_alphabet_size,'compression_ratio',options.l3_compression_ratio);
 end
 A(cen_inx,cen_inx)=1;
 Dist=D(cen_inx,cen_inx);
@@ -74,7 +74,7 @@ c=labeling(c3,c_inp,k);
 
 if plot_show
     % to plot the prototypes
-    Plot_time_series_luminate(0,0,c3,p(cen_inx),[],center,[],k,2,0.5,4);
+  %  Plot_time_series_luminate(0,0,c3,p(cen_inx),[],center,[],k,2,0.5,4);
     %     Plot_time_series_luminate(0,0,c3,p,[],center,[],k,0,0.5,4);
     Plot_time_series_luminate(0,0,c,p,[],nor_traj_raw,[],k,0,0.5,5);
 end;

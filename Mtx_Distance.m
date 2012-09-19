@@ -31,6 +31,9 @@ if strcmp(cond,'same')
                 switch options.dis_method
                     case 'Euclid'
                         dis=dis_euclidean(a,b);
+                        
+                    case 'Triangle'
+                        dis=dis_triangle(a,b);
                     case 'DTW'
                         dis=dis_dtw3(a,b,fix(size(a,2)*options.dtw_bound));
                         %                          dis=dis_dtw3(a,b,1);
@@ -48,6 +51,9 @@ if strcmp(cond,'same')
                         dis=dis_max_dist(a, b, options.alphabet_size,options.compression_ratio);
                     case 'SAXDIST'
                         dis=dis_SAX_apx(a, b, options.alphabet_size,options.compression_ratio);
+                    case 'SAX_MEANDIST'
+                        dis=dis_SAX_MEANDIST(a, b, options.alphabet_size,options.compression_ratio);
+                        
                     otherwise
                         error(sprintf('DOCLUSTERING - unsupported algorithm "%s"',dis_method))
                 end %of switch/case
@@ -69,6 +75,8 @@ else
             switch options.dis_method
                 case 'Euclid'
                     dis=dis_euclidean(a,b);
+                case 'Triangle'
+                    dis=dis_triangle(a,b);
                 case 'DTW'
                     dis=dis_dtw3(a,b,fix(size(a,2)*options.dtw_bound));
                     %  [dis,~,~,~]=dis_dtw_complete(a,b);
@@ -84,6 +92,8 @@ else
                     dis=dis_max_dist(a, b, options.alphabet_size,options.compression_ratio);
                 case 'SAXDIST'
                     dis=dis_SAX_apx(a, b, options.alphabet_size,options.compression_ratio);
+                case 'SAX_MEANDIST'
+                    dis=dis_SAX_MEANDIST(a, b, options.alphabet_size,options.compression_ratio);
                 otherwise
                     error(sprintf('DOCLUSTERING - unsupported algorithm "%s"',dis_method))
             end %of switch/case

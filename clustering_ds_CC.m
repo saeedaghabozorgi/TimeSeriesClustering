@@ -46,14 +46,14 @@ for dataset_no=1:length(files_name)
 end
 
 %%
-fileID = fopen('result.txt','a');
-for dataset_no=1:length(files_name)
+
+for dataset_no=7:length(files_name)
     disp(['-------------------',files_name(dataset_no)] );
     %   details(dataset_no,:)=evaluate_distance( ds{dataset_no});
     
-   parameter1={'l1_dis_method','Euclid','l1_dtw_bound',0,'l1_rep','RAW','l1_alphabet_size',8,'l1_compression_ratio',8,'l1_alg','k-medoids-keogh'};
-    [c1 ,D,det]=clustering_l1_preclustering(cluster_count(dataset_no),pp{dataset_no},ds{dataset_no},0,parameter1{:});
- details(dataset_no,:)= det;
+%    parameter1={'l1_dis_method','Euclid','l1_dtw_bound',0,'l1_rep','RAW','l1_alphabet_size',8,'l1_compression_ratio',8,'l1_alg','k-medoids-keogh'};
+%     [c1 ,D,det]=clustering_l1_preclustering(cluster_count(dataset_no),pp{dataset_no},ds{dataset_no},0,parameter1{:});
+%  details(dataset_no,:)= det;
    
 %  dis=squareform(dist_mtx_DTW{dataset_no});
 % [c,~]= do_kMedoids_keogh(cluster_count(dataset_no),dis);
@@ -67,16 +67,18 @@ for dataset_no=1:length(files_name)
 %     details(dataset_no,:)=det;
 %     param{dataset_no}=hurestic_param;
 
+   details(i,:)=clustering_Hybrid_3Level(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no},dist_mtx_DTW{dataset_no});
+
+
 %   Plot_time_series_luminate(0,0,c,pp{dataset_no},[],ds{dataset_no},[],cluster_count(dataset_no),2,0.5,1);
 
   %   calculate_DTW_matrix_paralele(ds{dataset_no},[foldpath,'\',folderes_name{dataset_no},'\',files_name{dataset_no},'_dismat_DTW.mat']);
     %   calculate_DTW_ground_truth(ds{dataset_no},dataset_no);
     %details(dataset_no,:)=clustering_Hybrid_3Level_anytime3(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no});
  %  plot_histogram(dist_mtx_DTW{dataset_no},ds{dataset_no});
+ save('details.mat','details');
 end
-fprintf(fileID,'---------------------------------------------------------------------------------------------------------\n');
-fprintf(fileID,'\n');
-fclose(fileID);
+
 
 end
 

@@ -1,4 +1,4 @@
-function [c error_rate N_reduction_2lev D A]=clustering_l2_purify3(c,p,nor_traj_raw,D,A,plot_show,varargin)
+function [c error_rate N_reduction_2lev D A]=clustering_l2_purify3(c,p,nor_traj_raw,D,A,plot_show,dist_mtx_DTW,varargin)
 options = struct('l2_dis_method','SAXminDis','l2_dtw_bound',1,'l2_rep','SAX','l2_alphabet_size',8,'l2_compression_ratio',8);
 optionNames = fieldnames(options);
 nArgs = length(varargin);
@@ -75,13 +75,13 @@ for i=1:clusterCount
 %                     end
 %                 end
         %-- to speead up
-        dismat=dismat+dismat';
-        D(newData,newData)=dismat(newData,newData);
+     %   dismat=dismat+dismat';
+        D(newData,newData)=dist_mtx_DTW(newData,newData);
         %----------------------
         
         dist1=D(newData,newData);
         A(newData,newData)=1 ;
-        [temp_c,mu,sigma]= do_CAST_time (nor_traj(newData),dist1,-1,'dis_method',options.l2_dis_method,'rep',options.l2_rep,'alphabet_size',options.l2_alphabet_size,'compression_ratio',options.l2_compression_ratio,'dtw_bound',options.l2_dtw_bound);
+        [temp_c]= do_CAST_time (nor_traj(newData),dist1,-1,'dis_method',options.l2_dis_method,'rep',options.l2_rep,'alphabet_size',options.l2_alphabet_size,'compression_ratio',options.l2_compression_ratio,'dtw_bound',options.l2_dtw_bound);
     end
     c(newData,2)=temp_c;
    % disp(['  --> Pre-cluster#',num2str(i),'  Mems:',num2str(length(newData)),'  Clus:',num2str(max(temp_c)),' avg_sim_l1:(',num2str(info(1,i)),'-',num2str(info(2,i)),')  avg_sim_DTW:',num2str(mu),'-',num2str(sigma),')']);
