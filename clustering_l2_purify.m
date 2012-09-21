@@ -83,7 +83,7 @@ for i=1:clusterCount
         mu=0;
         sigma=0;
     else
-        [temp_c]= do_CAST_time (nor_traj(newData),dist1,min(Affin1),'dis_method',options.l2_dis_method,'rep',options.l2_rep,'alphabet_size',options.l2_alphabet_size,'compression_ratio',options.l2_compression_ratio,'dtw_bound',options.l2_dtw_bound);
+        [temp_c]= do_CAST_time (nor_traj(newData),dist1,mean(Affin1),'dis_method',options.l2_dis_method,'rep',options.l2_rep,'alphabet_size',options.l2_alphabet_size,'compression_ratio',options.l2_compression_ratio,'dtw_bound',options.l2_dtw_bound);
     end
     c(newData,2)=temp_c;
     disp(['  --> Pre-cluster#',num2str(i),'  Mems:',num2str(length(newData)),'  Clus:',num2str(max(temp_c)),' avg_sim_l1:(',num2str(pre_avg_sim),'-',num2str(pre_sigma_sim),')  avg_sim_DTW:',num2str(DTW_avg_sim),'-',num2str(DTW_sigma_sim),')']);

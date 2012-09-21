@@ -57,14 +57,19 @@ for dataset_no=1:length(files_name)
     %   details{dataset_no}= def;
   
     
-      evaluate_distance(ds{dataset_no})
+   %   evaluate_distance(ds{dataset_no})
+%nor_traj=represent_TS(ds{dataset_no},'PAA','alphabet_size',4,'compression_ratio',8);
+
+
+
+%dist2=Mtx_Distance(nor_traj,nor_traj,'same','Org', 'dis_method','Euclid','dtw_bound',1,'rep','SAX','alphabet_size',4,'compression_ratio',8);
 
 
     
 %details{dataset_no}=clustering_anytime2(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no},dist_mtx_DTW{dataset_no});
     %   details(dataset_no,:)=clustering_Hybrid_2Level_graphbased(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no},dist_mtx_DTW{dataset_no});
-   %    details(dataset_no,:)=clustering_Hybrid_3Level(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no},dist_mtx_DTW{dataset_no});
-    %     [det,hurestic_param]=clustering_Hybrid_3Level_heuristic(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no},dist_mtx_DTW{dataset_no});
+       details(dataset_no,:)=clustering_Hybrid_3Level(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no},dist_mtx_DTW{dataset_no});
+   %     [det,hurestic_param]=clustering_Hybrid_3Level_heuristic(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no},dist_mtx_DTW{dataset_no});
     %     details(dataset_no,:)=det;
     %     param{dataset_no}=hurestic_param;
     
@@ -245,5 +250,24 @@ result=[Avg_Diff1,Avg_Diff2,Avg_Diff3,Avg_Diff4,Avg_NTighetness1,Avg_NTighetness
 
 dlmwrite('result.txt',result ,'-append','delimiter','\t','newline','pc');
 %-------------------------------------------------------------
+end
+
+
+function PAATEST
+a=[6 5 6 6 4  3 2 1 1 0];
+a=NormalizeTS(a);
+a=a{1}
+plot (a)
+hold on;
+b=[2 1 2 3 4 3 2 1 1 0];
+b=NormalizeTS(b);
+b=b{1}
+plot (b)
+sym1=rep_PAA(a, 10, 2, 1);
+sym2=rep_PAA(b, 10, 2, 1);
+
+dis1=dis_euclidean(sym1,sym2);
+dis2=dis_euclidean(a,b);
+dist2=Mtx_Distance(a,b,'same','Org', 'dis_method','Euclid','dtw_bound',1,'rep','SAX','alphabet_size',4,'compression_ratio',8);
 end
 
