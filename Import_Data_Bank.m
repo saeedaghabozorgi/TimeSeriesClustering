@@ -4,7 +4,7 @@ function [nor_traj,t_traj]=Import_Data_Bank(FromUser,ToUser,cond,SinceTime,ToTim
 %cond: timeSeq  : from TSstart to ToTime
 %cond: sequence : from SinceTime to ToTime
 % Import the file
-fileName='C:\Users\Saeed\Documents\My Research\Research Works\My research_Time series Clustering\code\data\data10.txt';
+fileName='..\dataset Bank\data10.txt';
 
 walking=1;
 lng=365;
