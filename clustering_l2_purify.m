@@ -1,4 +1,4 @@
-function [c error_rate N_reduction_2lev D A]=clustering_l2_purify(c,p,nor_traj_raw,D,A,plot_show,dist_mtx_DTW,varargin)
+function [c error_rate D A]=clustering_l2_purify(c,p,nor_traj_raw,D,A,plot_show,evaluation,dist_mtx_DTW,varargin)
 
 options = struct('l2_dis_method','SAXminDis','l2_dtw_bound',1,'l2_rep','SAX','l2_alphabet_size',8,'l2_compression_ratio',8);
 optionNames = fieldnames(options);
@@ -83,7 +83,7 @@ for i=1:clusterCount
         mu=0;
         sigma=0;
     else
-        [temp_c]= do_CAST_time (nor_traj(newData),dist1,mean(Affin1),'dis_method',options.l2_dis_method,'rep',options.l2_rep,'alphabet_size',options.l2_alphabet_size,'compression_ratio',options.l2_compression_ratio,'dtw_bound',options.l2_dtw_bound);
+        [temp_c]= do_CAST_time (nor_traj(newData),dist1,-1,'dis_method',options.l2_dis_method,'rep',options.l2_rep,'alphabet_size',options.l2_alphabet_size,'compression_ratio',options.l2_compression_ratio,'dtw_bound',options.l2_dtw_bound);
     end
     c(newData,2)=temp_c;
     disp(['  --> Pre-cluster#',num2str(i),'  Mems:',num2str(length(newData)),'  Clus:',num2str(max(temp_c)),' avg_sim_l1:(',num2str(pre_avg_sim),'-',num2str(pre_sigma_sim),')  avg_sim_DTW:',num2str(DTW_avg_sim),'-',num2str(DTW_sigma_sim),')']);
@@ -109,12 +109,13 @@ if plot_show
     Plot_time_series_luminate(0,0,c(:,4),p,[],nor_traj_raw,[],l2_clusterCount,2,0.5,2);
 end;
 c=c(:,4);
-purity2=Calculate_Cluster_Purity(c,p,1);
-qual_2lev=Calculate_Cluster_correct_ratio(c,p);
-N_reduction_2lev=1-l2_clusterCount/length(nor_traj);
-error_rate=Calculate_error_rate(c,p);
-%[SSEP,SSEC,RI,ARI,purity,BCubed,ConEntropy,f_measure,jacard,FM,NMI,quality]= do_Evaluate(p,c,nor_traj,[],[]);
-disp(['  --> Number of clusters:',num2str(l2_clusterCount),' | ','error_rate:', num2str(error_rate),' | ', 'reduction:', num2str(N_reduction_2lev),' | ','correct_rate:', num2str(qual_2lev),' | ','purity:', num2str(purity2)]);
-
+error_rate=[];
+if evaluation
+    purity2=Calculate_Cluster_Purity(c,p,1);
+    qual_2lev=Calculate_Cluster_correct_ratio(c,p);
+    N_reduction_2lev=1-l2_clusterCount/length(nor_traj);
+    error_rate=Calculate_error_rate(c,p);
+    disp(['  --> Number of clusters:',num2str(l2_clusterCount),' | ','error_rate:', num2str(error_rate),' | ', 'reduction:', num2str(N_reduction_2lev),' | ','correct_rate:', num2str(qual_2lev),' | ','purity:', num2str(purity2)]);
+end
 
 end
