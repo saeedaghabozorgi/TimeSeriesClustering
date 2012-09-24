@@ -4,7 +4,7 @@ nameFolds = dir(foldpath);
 for k=3:length(nameFolds)
     fold_name = nameFolds(k).name;
     folderes_name{k-2}=fold_name;
-    files_name{k-2}=[fold_name,'_TEST'];
+    files_name{k-2}=[fold_name,'_TRAIN'];
 end
 
 disp('Reading data ..');
@@ -55,23 +55,22 @@ for dataset_no=1:length(files_name)
     %         def(i,:)= clustering_Hybrid_3Level(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no},dist_mtx_DTW{dataset_no});
     %     end
     %   details{dataset_no}= def;
-  
     
    %   evaluate_distance(ds{dataset_no})
 %nor_traj=represent_TS(ds{dataset_no},'PAA','alphabet_size',4,'compression_ratio',8);
 
-
-
+Plot_time_series_luminate(0,0,pp{dataset_no},pp{dataset_no},[],ds{dataset_no},[],cluster_count(dataset_no),2,0.5,1);
+print(gcf,'-dpng',['cluster',int2str(dataset_no),'.png']);
 %dist2=Mtx_Distance(nor_traj,nor_traj,'same','Org', 'dis_method','Euclid','dtw_bound',1,'rep','SAX','alphabet_size',4,'compression_ratio',8);
 
 
     
 %details{dataset_no}=clustering_anytime2(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no},dist_mtx_DTW{dataset_no});
-    %   details(dataset_no,:)=clustering_Hybrid_2Level_graphbased(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no},dist_mtx_DTW{dataset_no});
-       details(dataset_no,:)=clustering_Hybrid_3Level(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no},dist_mtx_DTW{dataset_no});
+   %   details(dataset_no,:)=clustering_Hybrid_2Level_graphbased(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no},dist_mtx_DTW{dataset_no});
+   %    details(dataset_no,:)=clustering_Hybrid_3Level(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no},dist_mtx_DTW{dataset_no});
    %     [det,hurestic_param]=clustering_Hybrid_3Level_heuristic(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no},dist_mtx_DTW{dataset_no});
-    %     details(dataset_no,:)=det;
-    %     param{dataset_no}=hurestic_param;
+   %     details(dataset_no,:)=det;
+   %     param{dataset_no}=hurestic_param;
     
     
     %   calculate_DTW_matrix_paralele(ds{dataset_no},[foldpath,'\',folderes_name{dataset_no},'\',files_name{dataset_no},'_dismat_DTW.mat']);
