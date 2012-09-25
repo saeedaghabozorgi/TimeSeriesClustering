@@ -1,7 +1,6 @@
 function [details]=clustering_Hybrid_3Level(nor_traj, k,p,dist_mtx_DTW,varargin)
 disp(['-- START ---------------------------------']);
 %kk=round(length(nor_traj)/200);
-
 kk=round(sqrt(2*length(nor_traj)));
 if isempty(k)
     k=kk;
@@ -11,21 +10,10 @@ if kk<k
 end
 A=zeros(length(nor_traj),length(nor_traj));
 %% ------------ Level 1-- k-mode --------
-parameter1={'l1_dis_method','Euclid','l1_dtw_bound',0.2,'l1_rep','SAX','l1_alphabet_size',8,'l1_compression_ratio',4,'l1_alg','k-medoids-keogh'};
+parameter1={'l1_dis_method','Euclid','l1_dtw_bound',0.2,'l1_rep','RAW','l1_alphabet_size',8,'l1_compression_ratio',2,'l1_alg','k-modes'};
 [c1 ,D,detailes]=clustering_l1_preclustering(kk,p,nor_traj,0,0,[],parameter1{:});
 [center weight cen_inx]=clustering_making_prototype(c1,[],nor_traj,D,0,parameter1{:});
- % calculate SSE
-%  c=c1;
-% clusterCount=max(c);
-% SSE=0;
-% for j=1:clusterCount
-%     mem=find(c==j);
-%     for i=1: length(mem)
-%         d=D(mem(i),cen_inx(j));
-%         SSE=SSE+d^2;
-%     end
-% end
-% SSE1=SSE;
+
 %% -------------Level 2--CAST--------------------------------------------
 parameter2={'l2_dis_method','Euclid','l2_dtw_bound',0.2,'l2_rep','RAW','l2_alphabet_size',8,'l2_compression_ratio',2};
  [c2 ,error_rate,D,A]=clustering_l2_purify(c1,p,nor_traj,D,A,0,0,[],parameter2{:});
@@ -37,20 +25,9 @@ parameter2={'l2_dis_method','Euclid','l2_dtw_bound',0.2,'l2_rep','RAW','l2_alpha
 % end
 % weight=[];
 %% --------------Level 3-------------------------------------------------
-parameter3={'l3_dis_method','DTW','l3_dtw_bound',1,'l3_rep','SAX','l3_alphabet_size',8,'l3_compression_ratio',2,'l3_alg','k-medoids-keogh'};
-[c3 ,details]=clustering_l3_merge(c2,p,k,center,cen_inx',nor_traj,weight,D,A,0,0,dist_mtx_DTW,parameter3{:});
- [center weight cen_inx]=clustering_making_prototype(c3,[],nor_traj,D,0,parameter3{:});
- % calculate SSE
- c=c3;
-clusterCount=max(c);
-SSE=0;
-for j=1:clusterCount
-    mem=find(c==j);
-    for i=1: length(mem)
-        d=D(mem(i),cen_inx(j));
-        SSE=SSE+d^2;
-    end
-end
+parameter3={'l3_dis_method','DTW','l3_dtw_bound',1,'l3_rep','RAW','l3_alphabet_size',8,'l3_compression_ratio',2,'l3_alg','k-medoids-keogh'};
+[c3 ,details]=clustering_l3_merge(c2,p,k,center,cen_inx',nor_traj,weight,D,A,0,1,dist_mtx_DTW,parameter3{:});
+
 details=[details,length(cen_inx)];
 end
 

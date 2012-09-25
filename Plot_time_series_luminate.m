@@ -33,7 +33,7 @@ for j=1:rrr
     %combinedStr=strcat('(cluster:',num2str(j),')');
     ax = subplot(hplot,wplot,j);
     cla(ax);
-    for i=1:2%length(clus{j})
+    for i=1:length(clus{j})
         ind=clus{j}(i,1);
         if showMems==1
             memStr = strcat(memStr,',',num2str(ind));
