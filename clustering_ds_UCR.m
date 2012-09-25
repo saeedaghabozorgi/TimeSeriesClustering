@@ -8,7 +8,7 @@ for k=3:length(nameFolds)
 end
 
 disp('Reading data ..');
-for dataset_no=14:14%length(files_name)
+for dataset_no=1:length(files_name)
     file_name=[foldpath,'\',folderes_name{dataset_no},'\',files_name{dataset_no}];
     disp([files_name(dataset_no)] );
     train_data = importdata(file_name);
@@ -48,7 +48,7 @@ end
 
 %%
 
-for dataset_no=14:14%length(files_name)
+for dataset_no=1:length(files_name)
     disp(['-------------------',files_name(dataset_no)] );
     %   details(dataset_no,:)=evaluate_distance( ds{dataset_no});
     %     for i=1: 20
