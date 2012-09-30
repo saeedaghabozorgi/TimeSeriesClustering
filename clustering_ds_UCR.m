@@ -27,7 +27,10 @@ for dataset_no=1:length(files_name)
     %     load(label_filename,'label');
     %     TRAIN_class_labels=label;
     
-    
+     %----labels from DD_k-medoids------
+        label_filename=['..\dataset UCR\',folderes_name{dataset_no},'\',files_name{dataset_no},'_kMedoid_RAW_ED_label.mat'];
+        load(label_filename);
+        TRAIN_class_labels=label;
     
     p=TRAIN_class_labels;
     
@@ -63,11 +66,15 @@ for dataset_no=1:length(files_name)
 % print(gcf,'-dpng',['cluster_com',int2str(dataset_no),'.png']);
 %dist2=Mtx_Distance(nor_traj,nor_traj,'same','Org', 'dis_method','Euclid','dtw_bound',1,'rep','SAX','alphabet_size',4,'compression_ratio',8);
 
-
+parameter1={'l1_dis_method','SAXminDis','l1_dtw_bound',0.2,'l1_rep','SAX','l1_alphabet_size',8,'l1_compression_ratio',8,'l1_alg','k-medoids-keogh'};
+%parameter1={'l1_dis_method','Euclid','l1_dtw_bound',0.2,'l1_rep','RAW','l1_alphabet_size',8,'l1_compression_ratio',8,'l1_alg','k-medoids-keogh'};
+[c1 ,D,det]=clustering_l1_preclustering(cluster_count(dataset_no),pp{dataset_no},ds{dataset_no},0,1,[],parameter1{:});
+     details(dataset_no,:)=det;
+     
     
 %details{dataset_no}=clustering_anytime2(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no},dist_mtx_DTW{dataset_no});
    %   details(dataset_no,:)=clustering_Hybrid_2Level_graphbased(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no},dist_mtx_DTW{dataset_no});
-      details(dataset_no,:)=clustering_Hybrid_3Level(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no},dist_mtx_DTW{dataset_no});
+   %   details(dataset_no,:)=clustering_Hybrid_3Level(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no},dist_mtx_DTW{dataset_no});
    %     [det,hurestic_param]=clustering_Hybrid_3Level_heuristic(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no},dist_mtx_DTW{dataset_no});
    %     details(dataset_no,:)=det;
    %     param{dataset_no}=hurestic_param;

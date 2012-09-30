@@ -22,6 +22,7 @@ for i=1:l2_clusterCount;
     newData=find(c(:,1)==i);
     dis=dist(newData,newData);
     [cent inx]=centre_mediod(c,i,nor_traj,dis,'dis_method',options.l3_dis_method,'rep',options.l3_rep,'alphabet_size',options.l3_alphabet_size,'compression_ratio',options.l3_compression_ratio,'dtw_bound',options.l3_dtw_bound);
+  %  [cent inx]=centre_centroid(c,i,nor_traj,dis,'dis_method',options.l3_dis_method,'rep',options.l3_rep,'alphabet_size',options.l3_alphabet_size,'compression_ratio',options.l3_compression_ratio,'dtw_bound',options.l3_dtw_bound);
     center{i}=cent;
     cen_inx(i)=inx;
    % center{i}=centre_randoid(c,i,nor_traj,'dis_method',options.l3_dis_method,'rep',options.l3_rep,'alphabet_size',options.l3_alphabet_size,'compression_ratio',options.l3_compression_ratio,'dtw_bound',options.l3_dtw_bound);
@@ -81,6 +82,35 @@ else
     Error=sum(dis);
     [s,m]=min(Error);
     % medoid=nor_traj{m}; %transfered
+    medoid=nor_traj_raw{t(m)};
+    inx=t(m);
+end
+end
+
+
+
+function [medoid inx]=centre_centroid(c,clusterNum,nor_traj_raw,dis,varargin)
+%clusterNum
+options = struct('rep','RAW');
+optionNames = fieldnames(options);
+nArgs = length(varargin);
+if round(nArgs/2)~=nArgs/2
+    error('EXAMPLE needs propertyName/propertyValue pairs')
+end
+for pair = reshape(varargin,2,[]) %# pair is {propName;propValue}
+    inpName = lower(pair{1}); %# make case insensitive
+    if any(strmatch(inpName,optionNames))
+        options.(inpName) = pair{2};
+    end
+end
+
+t=find(c(:,1)==clusterNum);
+
+if isempty (t)
+    medoid=[];
+    
+else
+    nor_traj=represent_TS(nor_traj_raw(t),options.rep,varargin{:});
     medoid=nor_traj_raw{t(m)};
     inx=t(m);
 end

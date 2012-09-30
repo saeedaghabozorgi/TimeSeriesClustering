@@ -46,6 +46,8 @@ elseif strmatch(options.l1_alg,'hier_single')
 elseif strmatch(options.l1_alg,'k-medoids-keogh')
     dis=squareform(distance);
     [c,~]= do_kMedoids_keogh(k,dis);
+else
+    return;
 end
 details=[];
 if evaluation
