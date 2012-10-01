@@ -1,17 +1,32 @@
-function clustering_ds_eod
+function clustering_ds_KLSE
 % make_companies();
 % make_train_ds();
 % calculate_DTW_DIST();
-load ('..\dataset eod\train data\KLSE_DATA.mat','train_data');
+load ('..\dataset KLSE\train data\KLSE_DATA.mat','train_data');
 rows=size(train_data,1);
 [nor_traj_raw,~]=z_normalize(1,rows,1,240,train_data);
 
-calculate_DTW_matrix_paralele(nor_traj,'..\dataset eod\train data\KLSE_dismat_DTW');
+%c1=[ 9,10,24,28,34,88]
+%c6=[ 18,19,20,21,26,29,33]
+c12=[ 14,23,41,52,53]
+for i=1:7
+   plot (nor_traj_raw{c12(i)});
+end
 
-dis_mtx=Mtx_Distance(nor_traj_raw,nor_traj_raw,'same','Norm','dis_method','Euclid');
-k=round(sqrt(2*rows));
-details=clustering_Hybrid_3Level(nor_traj_raw,k,randi(k,[rows,1]),[]);
 
+%calculate_DTW_matrix_paralele(nor_traj,'..\dataset eod\train data\KLSE_dismat_DTW');
+
+k=round(sqrt(rows/2));
+
+dist_mtx_DTW_file=['..\dataset KLSE\train data\KLSE_dismat_DTW.mat'];
+load(dist_mtx_DTW_file,'dismat');
+dist_mtx_DTW=dismat;
+
+
+    nor_traj=nor_traj_raw(1:100);
+    %details=clustering_Hybrid_3Level(nor_traj_raw,k,randi(k,[rows,1]),[]);
+    
+    details=clustering_Hybrid_3Level(nor_traj,12,[1:1:100],dist_mtx_DTW,[]);
 
 end
 
@@ -36,7 +51,7 @@ for k=3:length(nameFiles)
     traj=D.dd(1:240,4)';
     
     train_data(k-2,:)=traj;
-     make_figure(traj,file_name{k-2});
+    make_figure(traj,file_name{k-2});
     rrr{k-2}= strrep(file_name{k-2},'.mat','')
 end
 save('EOD_DATA','train_data');
@@ -46,7 +61,7 @@ end
 
 
 function make_figure(traj,filename)
-h = figure(1); 
+h = figure(1);
 plot( traj);
 filename=['C:\Users\Saeed\Documents\Google project\dataset eod\plot2010\',filename,'.png'];
 print(h,'-dpng',filename);
@@ -97,7 +112,7 @@ for i=2:length(txt)
     else
         
         xx=find(dt>datenum('1/1/2010') & dt<datenum('1/1/2011'));
-       % TS{j}=data(:,4)';
+        % TS{j}=data(:,4)';
         datem(j,1)=txt(i-1,1);
         datem(j,3)=txt(i-1,3);
         filename=strcat(folderpath,'companies\',txt(i-1,1),'.mat');
@@ -113,8 +128,8 @@ for i=2:length(txt)
         datem(j,2)=txt(i,3);
     end
 end
-        filename=strcat(folderpath,'info\',text_file,'.mat');
-        save(char(filename),'datem');
+filename=strcat(folderpath,'info\',text_file,'.mat');
+save(char(filename),'datem');
 end
 
 
@@ -122,7 +137,7 @@ function calculate_DTW_matrix_paralele(nor_traj,path)
 matlabpool open 8
 poolSize = matlabpool('size');
 if poolSize == 0
-   error('parallel:demo:poolClosed', ...
+    error('parallel:demo:poolClosed', ...
         'This demo needs an open MATLAB pool to run.');
 end
 fprintf('This demo is running on %d MATLABPOOL workers.\n', ...
@@ -142,12 +157,12 @@ end
 
 function dismatrix=rowcalc(row,data_n,x)
 dismatrix=zeros(1,data_n);
-    a=x{row};
-    for j = row:data_n,
-        if row ~= j
-            b=x{j};
-            dis=dis_dtw3(a,b,size(a,2));
-            dismatrix(1, j) =dis;
-        end
+a=x{row};
+for j = row:data_n,
+    if row ~= j
+        b=x{j};
+        dis=dis_dtw3(a,b,size(a,2));
+        dismatrix(1, j) =dis;
     end
+end
 end
