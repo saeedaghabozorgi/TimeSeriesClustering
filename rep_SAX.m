@@ -25,7 +25,7 @@ pointers         = [];                                                  % Initia
 symbolic_data = zeros(1,n);                                             % Initialize symbolic_data with a void string, it will be removed later.
 all_string = zeros(length(data)-N+1,n);
 xx=[];
-%fid = fopen('test2.txt', 'a+');
+fid = fopen('test2.txt', 'a+');
 % Scan accross the time series extract sub sequences, and converting them to strings.
 for i = 1 : length(data) - (N -1)
     
@@ -62,10 +62,10 @@ for i = 1 : length(data) - (N -1)
     end
     
     current_string = map_to_string(PAA,alphabet_size);          % Convert the PAA to a string.
-  %  xx=[xx,PAA(current_string==6)];
+    xx=[xx,PAA(current_string==5)];
     %xx=PAA;
-  %  fprintf(fid,'%d\n', xx);
-    %    save('test.mat','xx','-v7.3','-append');
+    fprintf(fid,'%d\n', xx);
+   %    save('test.mat','xx','-v7.3','-append');
     % no numerosity reduction: record everything
     if NR_opt == 1
         symbolic_data    = [symbolic_data; current_string];     % ... add it to the set...
@@ -122,7 +122,7 @@ for i = 1 : length(data) - (N -1)
     end
     
 end;
-%fclose(fid);
+fclose(fid);
 % Delete the first element, it was just used to initialize the data structure
 symbolic_data(1,:) = [];
 

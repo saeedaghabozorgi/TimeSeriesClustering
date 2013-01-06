@@ -91,6 +91,7 @@ end
 %-------
 % to map raw objects to new clusters
 c(:,3)=c(:,1)*100000+c(:,2);
+%[x,y]=sortrows(c,[1 2]);
 [x,y]=sort(c);
 clsNum=1;
 c(y(1,3),4)=clsNum;

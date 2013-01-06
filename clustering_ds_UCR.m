@@ -8,7 +8,7 @@ for k=3:length(nameFolds)
 end
 
 disp('Reading data ..');
-for dataset_no=1:length(files_name)
+for dataset_no=1:10%length(files_name)
     file_name=[foldpath,'\',folderes_name{dataset_no},'\',files_name{dataset_no}];
     disp([files_name(dataset_no)] );
     train_data = importdata(file_name);
@@ -22,16 +22,12 @@ for dataset_no=1:length(files_name)
         TRAIN_class_labels(TRAIN_class_labels==0)=max(TRAIN_class_labels)+1;
     end
     
-    %----labels from DTW_k-medoids------
-    %     label_filename=['..\dataset UCR\prepared_k-medoids_label\ds_UCR_',num2str(dataset_no),'_DTW_label.mat'];
-    %     load(label_filename,'label');
-    %     TRAIN_class_labels=label;
-    
-     %----labels from DD_k-medoids------
-        label_filename=['..\dataset UCR\',folderes_name{dataset_no},'\',files_name{dataset_no},'_kMedoid_RAW_ED_label.mat'];
-        load(label_filename);
-        TRAIN_class_labels=label;
-    
+   
+     %----labels ------
+%          label_filename=['..\dataset UCR\',folderes_name{dataset_no},'\',files_name{dataset_no},'_hier_single_RAW_ED_label.mat'];
+%          load(label_filename);
+%          TRAIN_class_labels=label;
+%     
     p=TRAIN_class_labels;
     
     k=length(unique(TRAIN_class_labels));
@@ -42,22 +38,47 @@ for dataset_no=1:length(files_name)
     pp{dataset_no}=p;
     ds{dataset_no}=nor_traj_raw;
     
+
+%     dist_mtx_file=[foldpath,'\',folderes_name{dataset_no},'\',files_name{dataset_no},'_dismat_MINDIST_SAX4.mat'];
+%     load(dist_mtx_file,'dismat');
+%     dismat=dismat+dismat';
+%     dist_mtx{dataset_no}=dismat;
     
-    dist_mtx_DTW_file=[foldpath,'\',folderes_name{dataset_no},'\',files_name{dataset_no},'_dismat_DTW.mat'];
-    load(dist_mtx_DTW_file,'dismat');
+    dist_mtx_file=[foldpath,'\',folderes_name{dataset_no},'\',files_name{dataset_no},'_dismat_DTW_RAW.mat'];
+    load(dist_mtx_file,'dismat');
     dismat=dismat+dismat';
-    dist_mtx_DTW{dataset_no}=dismat;
+    dist_mtx{dataset_no}=dismat;
 end
 
 %%
 
-for dataset_no=1:length(files_name)
+for dataset_no=1:length(files_name)-2
     disp(['-------------------',files_name(dataset_no)] );
     %   details(dataset_no,:)=evaluate_distance( ds{dataset_no});
     %     for i=1: 20
     %         def(i,:)= clustering_Hybrid_3Level(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no},dist_mtx_DTW{dataset_no});
     %     end
     %   details{dataset_no}= def;
+    
+    
+    delete('test2.txt');
+ nor_traj=represent_TS(ds{dataset_no},'SAX','alphabet_size',6,'compression_ratio',4);
+        A = importdata('test2.txt');
+        nor_traj_raw=ds{dataset_no};
+        figure(1);
+         hold off;
+%         plot (nor_traj_raw{1});
+%         hold on;
+%         plot (nor_traj_raw{2},'r');
+%         plot (nor_traj_raw{3},'g');
+%         print(gcf,'-dpng',['TS',int2str(dataset_no),'.png']);
+     A= (A-mean(A))/std(A)
+         hist(A,10)
+         print(gcf,'-dpng',['dis_all',int2str(dataset_no),'.png']);
+    %    h = normplot(A) 
+
+
+    
     
    %   evaluate_distance(ds{dataset_no})
 %nor_traj=represent_TS(ds{dataset_no},'PAA','alphabet_size',4,'compression_ratio',8);
@@ -66,24 +87,24 @@ for dataset_no=1:length(files_name)
 % print(gcf,'-dpng',['cluster_com',int2str(dataset_no),'.png']);
 %dist2=Mtx_Distance(nor_traj,nor_traj,'same','Org', 'dis_method','Euclid','dtw_bound',1,'rep','SAX','alphabet_size',4,'compression_ratio',8);
 
-parameter1={'l1_dis_method','SAXminDis','l1_dtw_bound',0.2,'l1_rep','SAX','l1_alphabet_size',8,'l1_compression_ratio',8,'l1_alg','k-medoids-keogh'};
-%parameter1={'l1_dis_method','Euclid','l1_dtw_bound',0.2,'l1_rep','RAW','l1_alphabet_size',8,'l1_compression_ratio',8,'l1_alg','k-medoids-keogh'};
-[c1 ,D,det]=clustering_l1_preclustering(cluster_count(dataset_no),pp{dataset_no},ds{dataset_no},0,1,[],parameter1{:});
-     details(dataset_no,:)=det;
-     
+% parameter1={'l1_dis_method','SAXminDis','l1_dtw_bound',0.2,'l1_rep','SAX','l1_alphabet_size',8,'l1_compression_ratio',8,'l1_alg','hier_single'};
+% parameter1={'l1_dis_method','Euclid','l1_dtw_bound',0.2,'l1_rep','RAW','l1_alphabet_size',8,'l1_compression_ratio',8,'l1_alg','hier_single'};
+%  [c1 ,D,det]=clustering_l1_preclustering(cluster_count(dataset_no),pp{dataset_no},ds{dataset_no},0,1,dist_mtx{dataset_no},parameter1{:});
+%       details(dataset_no,:)=det;
+
     
 %details{dataset_no}=clustering_anytime2(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no},dist_mtx_DTW{dataset_no});
    %   details(dataset_no,:)=clustering_Hybrid_2Level_graphbased(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no},dist_mtx_DTW{dataset_no});
-   %   details(dataset_no,:)=clustering_Hybrid_3Level(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no},dist_mtx_DTW{dataset_no});
+    %  details(dataset_no,:)=clustering_Hybrid_3Level(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no},dist_mtx{dataset_no});
    %     [det,hurestic_param]=clustering_Hybrid_3Level_heuristic(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no},dist_mtx_DTW{dataset_no});
    %     details(dataset_no,:)=det;
    %     param{dataset_no}=hurestic_param;
     
     
-    %   calculate_DTW_matrix_paralele(ds{dataset_no},[foldpath,'\',folderes_name{dataset_no},'\',files_name{dataset_no},'_dismat_DTW.mat']);
+   %    calculate_DTW_matrix_paralele(ds{dataset_no},[foldpath,'\',folderes_name{dataset_no},'\',files_name{dataset_no},'_dismat_ED_RAW.mat']);
     %   calculate_DTW_ground_truth(ds{dataset_no},dataset_no);
     %details(dataset_no,:)=clustering_Hybrid_3Level_anytime3(ds{dataset_no},cluster_count(dataset_no),pp{dataset_no});
-    %  plot_histogram(dist_mtx_DTW{dataset_no},ds{dataset_no});
+   %   plot_histogram(dist_mtx_DTW{dataset_no},ds{dataset_no});
  %   save('details.mat','details');
 
 end
@@ -156,7 +177,8 @@ a=x{row};
 for j = row:data_n,
     if row ~= j
         b=x{j};
-        dis=dis_dtw3(a,b,size(a,2));
+        %dis=dis_dtw3(a,b,size(a,2));
+        dis=dis_euclidean(a,b);
         dismatrix(1, j) =dis;
     end
 end

@@ -10,7 +10,7 @@ if kk<k
 end
 A=zeros(length(nor_traj),length(nor_traj));
 %% ------------ Level 1-- k-mode --------
-parameter1={'l1_dis_method','Euclid','l1_dtw_bound',0.2,'l1_rep','SAX','l1_alphabet_size',8,'l1_compression_ratio',2,'l1_alg','k-modes'};
+parameter1={'l1_dis_method','Euclid','l1_dtw_bound',0.2,'l1_rep','SAX','l1_alphabet_size',8,'l1_compression_ratio',6,'l1_alg','k-modes'};
 [c1 ,D,detailes]=clustering_l1_preclustering(kk,p,nor_traj,0,0,[],parameter1{:});
 %% -------------Level 2--CAST--------------------------------------------
 parameter2={'l2_dis_method','Euclid','l2_dtw_bound',0.2,'l2_rep','RAW','l2_alphabet_size',8,'l2_compression_ratio',2};
@@ -23,8 +23,8 @@ parameter2={'l2_dis_method','Euclid','l2_dtw_bound',0.2,'l2_rep','RAW','l2_alpha
 % end
 % weight=[];
 %% --------------Level 3-------------------------------------------------
-parameter3={'l3_dis_method','DTW','l3_dtw_bound',1,'l3_rep','RAW','l3_alphabet_size',8,'l3_compression_ratio',2,'l3_alg','k-medoids-keogh'};
-[c3 ,details]=clustering_l3_merge(c2,p,k,center,cen_inx',nor_traj,weight,D,A,1,0,dist_mtx_DTW,parameter3{:});
+parameter3={'l3_dis_method','DTW','l3_dtw_bound',1,'l3_rep','RAW','l3_alphabet_size',8,'l3_compression_ratio',2,'l3_alg','hier_single'};
+[c3 ,details]=clustering_l3_merge(c2,p,k,center,cen_inx',nor_traj,weight,D,A,0,1,dist_mtx_DTW,parameter3{:});
 
 details=[details,length(cen_inx)];
 end
