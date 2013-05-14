@@ -1,13 +1,14 @@
 function [Clustering] = ClusteringML(TS, MM, MaxStep)
 
 MM=[65:5:80];
-TS=load('TheBells_MFCC.txt');
+%TS=load('TheBells_MFCC.txt');
+TS=load('Winding_data.txt');
 TS=TS(:,1);
 %TS=[TS;TS];
 
 wL = int64(500);
 if (~exist('MaxStep','var')), MaxStep=100; end;
-% d=load('Winding_data.txt');
+
 
 
 %TS=TS(1:wL);
