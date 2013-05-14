@@ -45,14 +45,14 @@ function [Motif]= MK_Motif3(TS,M,Mark)
                RDist(j,i)=0;
                continue;               
            end
-           if (Mark(j)==1||Mark(j+M-1)==1)
+           if any(Mark(j:j+M-1))==1
                continue;
            end
            
            d = Dist_ED(TS(r:r+M-1), TS(j:j+M-1));
            RDist(j,i) = d;
            
-           if (Mark(r)==1||Mark(r+M-1)==1)
+           if any(Mark(r:r+M-1))==1
                continue;
            end
            
